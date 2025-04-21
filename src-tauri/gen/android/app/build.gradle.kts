@@ -15,10 +15,10 @@ val tauriProperties = Properties().apply {
 
 android {
     compileSdk = 34
-    namespace = "com.health_protocol.app"
+    namespace = "com.health_protocol.s6"
     defaultConfig {
         manifestPlaceholders["usesCleartextTraffic"] = "false"
-        applicationId = "com.health_protocol.app"
+        applicationId = "com.health_protocol.s6"
         minSdk = 24
         targetSdk = 34
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()

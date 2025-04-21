@@ -321,10 +321,14 @@ export function bindActivityProtocols() {
       return activityProtocols.filter(ap => ap.protocolId === protocolId);
     },
     getWithDetails: function (protocolId: number) {
+      console.log("getWithDetails", protocolId);
+      console.log("activityProtocols",activityProtocols);
+      console.log("activities", activities);
       return activityProtocols
-        .filter(ap => ap.protocolId === protocolId)
+        .filter(ap => ap.protocol_id === protocolId)
         .map(ap => {
-          const activity = activities.find(a => a.id === ap.activityId);
+          console.log(activities);
+          const activity = activities.find(a => a.id === ap.activity_id);
           return {
             ...ap,
             activityName: activity?.name || ""

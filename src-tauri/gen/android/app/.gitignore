@@ -1,4 +1,4 @@
-/src/main/java/com/health_protocol/app/generated
+/src/main/java/com/health_protocol/s6/generated
 /src/main/jniLibs/**/*.so
 /src/main/assets/tauri.conf.json
 /tauri.build.gradle.kts

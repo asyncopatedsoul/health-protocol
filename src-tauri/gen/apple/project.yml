@@ -1,6 +1,6 @@
 name: health-protocol
 options:
-  bundleIdPrefix: com.health-protocol.app
+  bundleIdPrefix: com.health-protocol.s6
   deploymentTarget:
     iOS: 13.0
 fileGroups: [../../src]
@@ -11,7 +11,7 @@ settingGroups:
   app:
     base:
       PRODUCT_NAME: health-protocol
-      PRODUCT_BUNDLE_IDENTIFIER: com.health-protocol.app
+      PRODUCT_BUNDLE_IDENTIFIER: com.health-protocol.s6
 targetTemplates:
   app:
     type: application

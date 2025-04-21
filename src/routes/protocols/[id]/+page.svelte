@@ -13,6 +13,7 @@
     const id = Number($page.params.id);
     if (id) {
       protocol = protocols.all.find(p => p.id === id);
+      console.log("protocol", protocol);
       if (protocol) {
         protocolActivities = activityProtocols.getWithDetails(id);
       }
@@ -33,7 +34,7 @@
     
     <section class="source-code-section">
       <h2>Source Code</h2>
-      <pre class="source-code">{protocol.sourceCode}</pre>
+      <pre class="source-code">{protocol.source_code}</pre>
     </section>
     
     <section class="activities-section">
