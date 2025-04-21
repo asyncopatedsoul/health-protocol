@@ -60,6 +60,10 @@
 
 <main class="container">
   <h1>Welcome to Tauri + Svelte</h1>
+  
+  <nav class="nav-links">
+    <a href="/protocols" class="button">Protocols</a>
+  </nav>
 
   <div class="row">
     <a href="https://vitejs.dev" target="_blank">
@@ -100,4 +104,21 @@
 </main>
 
 <style>
+  .nav-links {
+    margin: 1rem 0;
+  }
+  
+  .button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .button:hover {
+    background-color: #45a049;
+  }
 </style>
