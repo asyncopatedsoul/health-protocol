@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
-  import Database from "@tauri-apps/plugin-sql";
+  // import Database from "@tauri-apps/plugin-sql";
+  import { bindUsers } from "../data/models.svelte";
   import { onMount, onDestroy } from "svelte";
   import "../styles/App.css";
 
@@ -14,7 +15,8 @@
   let email = $state("");
 
   let greetMsg = $state("");
-  let users = $state([] as User[]);
+  // let users = $state([] as User[]);
+  const users = bindUsers();  
 
   import { appDataDir, dataDir } from "@tauri-apps/api/path";
 
@@ -32,47 +34,47 @@
     //   email: "foo@test.com"
     // })
     // return () => clearInterval(interval);
-    users = await getUsers();
+    // users = await getUsers();
   });
 
   onDestroy(() => {
     console.log("the component is being destroyed");
   });
 
-  async function getUsers() {
-    try {
-      const db = await Database.load("sqlite:test.db");
-      const dbUsers = await db.select("SELECT * FROM users");
-      console.log(dbUsers);
-      // setError("");
-      // setUsers(dbUsers);
-      // setIsLoadingUsers(false);
-      return dbUsers;
-    } catch (error) {
-      console.log(error);
-      // setError("Failed to get users - check console");
-      return [] as User[];
-    }
-  }
+  // async function getUsers() {
+  //   try {
+  //     const db = await Database.load("sqlite:test.db");
+  //     const dbUsers = await db.select("SELECT * FROM users");
+  //     console.log(dbUsers);
+  //     // setError("");
+  //     // setUsers(dbUsers);
+  //     // setIsLoadingUsers(false);
+  //     return dbUsers;
+  //   } catch (error) {
+  //     console.log(error);
+  //     // setError("Failed to get users - check console");
+  //     return [] as User[];
+  //   }
+  // }
 
-  async function addUser(user: User) {
-    try {
-      // setIsLoadingUsers(true);
-      const db = await Database.load("sqlite:test.db");
+  // async function addUser(user: User) {
+  //   try {
+  //     // setIsLoadingUsers(true);
+  //     const db = await Database.load("sqlite:test.db");
 
-      await db.execute("INSERT INTO users (name, email) VALUES ($1, $2)", [
-        user.name,
-        user.email,
-      ]);
+  //     await db.execute("INSERT INTO users (name, email) VALUES ($1, $2)", [
+  //       user.name,
+  //       user.email,
+  //     ]);
 
-      users = await getUsers();
+  //     users = await getUsers();
 
-      // getUsers().then(() => setIsLoadingUsers(false));
-    } catch (error) {
-      console.log(error);
-      // setError("Failed to insert user - check console");
-    }
-  }
+  //     // getUsers().then(() => setIsLoadingUsers(false));
+  //   } catch (error) {
+  //     console.log(error);
+  //     // setError("Failed to insert user - check console");
+  //   }
+  // }
 
   async function greet(event) {
     event.preventDefault();
@@ -80,11 +82,11 @@
     greetMsg = await invoke("greet", { name });
 
     let user: User = {
-      id: users.length + 1,
+      id: users.all.length + 1,
       name: name,
       email: email,
     };
-    addUser(user);
+    users.addUser(user);
   }
 </script>
 
@@ -124,7 +126,7 @@
   </form>
   <p>{greetMsg}</p>
 
-  {#each users as user, index (user)}
+  {#each users.all as user, index (user)}
     <li>{index + 1}: {user.id} {user.name} {user.email}</li>
   {/each}
 </main>
