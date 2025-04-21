@@ -13,6 +13,8 @@
   <nav class="main-nav">
     <a href="/" class="nav-link">Home</a>
     <a href="/protocols" class="nav-link">Protocols</a>
+    <a href="/skills" class="nav-link">Skills</a>
+    <a href="/skills/manage" class="nav-link">Manage Skills</a>
   </nav>
 </header>
 
