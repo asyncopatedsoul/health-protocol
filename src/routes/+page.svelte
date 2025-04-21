@@ -1,7 +1,7 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   // import Database from "@tauri-apps/plugin-sql";
-  import { bindUsers } from "../data/models.svelte";
+  import { bindUsers, bindSession, bindActivities, bindActivityHistory } from "../data/models.svelte";
   import { onMount, onDestroy } from "svelte";
   import "../styles/App.css";
 
@@ -17,6 +17,7 @@
   let greetMsg = $state("");
   // let users = $state([] as User[]);
   const users = bindUsers();  
+  const session = bindSession();
 
   import { appDataDir, dataDir } from "@tauri-apps/api/path";
 
@@ -25,6 +26,8 @@
     console.log("Data directory:", dataDirPath);
     const appDataDirPath = await appDataDir();
     console.log("App data directory:", appDataDirPath);
+
+    await session.loadData();
     // const interval = setInterval(() => {
     // 	console.log('beep');
     // }, 1000);
@@ -41,41 +44,6 @@
     console.log("the component is being destroyed");
   });
 
-  // async function getUsers() {
-  //   try {
-  //     const db = await Database.load("sqlite:test.db");
-  //     const dbUsers = await db.select("SELECT * FROM users");
-  //     console.log(dbUsers);
-  //     // setError("");
-  //     // setUsers(dbUsers);
-  //     // setIsLoadingUsers(false);
-  //     return dbUsers;
-  //   } catch (error) {
-  //     console.log(error);
-  //     // setError("Failed to get users - check console");
-  //     return [] as User[];
-  //   }
-  // }
-
-  // async function addUser(user: User) {
-  //   try {
-  //     // setIsLoadingUsers(true);
-  //     const db = await Database.load("sqlite:test.db");
-
-  //     await db.execute("INSERT INTO users (name, email) VALUES ($1, $2)", [
-  //       user.name,
-  //       user.email,
-  //     ]);
-
-  //     users = await getUsers();
-
-  //     // getUsers().then(() => setIsLoadingUsers(false));
-  //   } catch (error) {
-  //     console.log(error);
-  //     // setError("Failed to insert user - check console");
-  //   }
-  // }
-
   async function greet(event) {
     event.preventDefault();
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -86,7 +54,7 @@
       name: name,
       email: email,
     };
-    users.addUser(user);
+    users.add(user);
   }
 </script>
 

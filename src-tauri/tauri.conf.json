@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "health-protocol",
   "version": "0.1.0",
-  "identifier": "com.health-protocol.app",
+  "identifier": "com.health-protocol.s6",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
