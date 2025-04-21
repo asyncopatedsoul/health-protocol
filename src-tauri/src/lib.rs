@@ -32,30 +32,37 @@ pub fn run() {
             CREATE TABLE IF NOT EXISTS activities (  
                 id INTEGER PRIMARY KEY AUTOINCREMENT,  
                 name TEXT NOT NULL,  
-                parameters TEXT,
                 description TEXT,
                 video_guide TEXT,
                 image_guide TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS activity_protocols (  
+                id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                activity_id INTEGER NOT NULL, 
+                protocol_id INTEGER NOT NULL, 
+                parameters TEXT,
+                created_at INTEGER NOT NULL,
+                FOREIGN KEY (activity_id) REFERENCES activities(id),
+                FOREIGN KEY (protocol_id) REFERENCES protocols(id)
             );
             
             CREATE TABLE IF NOT EXISTS activity_history (  
                 id INTEGER PRIMARY KEY AUTOINCREMENT,  
                 user_id INTEGER NOT NULL, 
-                activity_id INTEGER NOT NULL, 
-                protocol_id INTEGER NOT NULL, 
-                start_time INTEGER NOT NULL,
-                end_time INTEGER NOT NULL,
+                activity_protocol_id INTEGER NOT NULL,
+                parameters TEXT,
+                start_time TIMESTAMP NOT NULL,
+                end_time TIMESTAMP NOT NULL,
+                start_time_ms INTEGER NOT NULL,
+                end_time_ms INTEGER NOT NULL,
                 status TEXT NOT NULL,
                 notes TEXT,
                 FOREIGN KEY (user_id) REFERENCES users(id),
-				FOREIGN KEY (activity_id) REFERENCES activities(id),
-				FOREIGN KEY (protocol_id) REFERENCES protocols(id)
+                FOREIGN KEY (activity_protocol_id) REFERENCES activity_protocols(id)
             );",
         kind: MigrationKind::Up,
-    },
-    ];
-
-    
+    }];
 
     tauri::Builder::default()
         .setup(|app| {
