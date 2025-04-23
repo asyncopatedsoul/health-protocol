@@ -1,95 +1,20 @@
-import Database from "@tauri-apps/plugin-sql";
+import { getDataStore } from './store-factory';
 import { get } from "svelte/store";
+import { 
+  User, 
+  Protocol, 
+  Activity, 
+  ActivityProtocol, 
+  ActivityHistory, 
+  SkillCategory, 
+  ActivitySkill, 
+  SkillPrerequisite, 
+  UserSkillProgress, 
+  AvailableUserSkill, 
+  DataStore 
+} from './types';
 
-type User = {
-  id: number;
-  name: string;
-  email: string;
-};
-
-type Protocol = {
-  id: number;
-  name: string;
-  sourceCode: string;
-  description: string;
-}
-
-type Activity = {
-  id: number;
-  name: string;
-  description: string;
-  videoGuide: string;
-  imageGuide: string;
-  activityType?: string;
-  complexityLevel?: number;
-}
-
-type ActivityProtocol = {
-  id: number;
-  activityId: number;
-  protocolId: number;
-  parameters: string;
-  createdAt: number;
-}
-
-type ActivityHistory = {
-  id: number;
-  userId: number;
-  activityProtocolId: number;
-  parameters: string;
-  startTime: string;
-  endTime: string;
-  startTimeMs: number;
-  endTimeMs: number;
-  status: string;
-  notes: string;
-}
-
-type SkillCategory = {
-  id: number;
-  name: string;
-  description: string;
-  color: string;
-}
-
-type ActivitySkill = {
-  id: number;
-  activityId: number;
-  name: string;
-  description: string;
-  difficulty: number;
-  categoryId?: number;
-}
-
-type SkillPrerequisite = {
-  id: number;
-  skillId: number;
-  prerequisiteSkillId: number;
-  requiredMasteryLevel: number;
-}
-
-type UserSkillProgress = {
-  id: number;
-  userId: number;
-  skillId: number;
-  masteryLevel: number;
-  lastPracticedAt?: number;
-  totalPracticeTimeMs: number;
-  practiceCount: number;
-}
-
-type AvailableUserSkill = {
-  userId: number;
-  skillId: number;
-  skillName: string;
-  difficulty: number;
-  masteryLevel: number;
-  isAvailable: number;
-}
-
-let sqlite_path = "sqlite:local.db";
-// let db: Database = {} as Database;
-
+// State variables to hold data
 let users: User[] = $state([] as User[]);
 let protocols: Protocol[] = $state([] as Protocol[]);
 let activities: Activity[] = $state([] as Activity[]);
@@ -103,16 +28,14 @@ let availableUserSkills: AvailableUserSkill[] = $state([] as AvailableUserSkill[
 
 let currentUser: User = $state({} as User);
 
-// getUsers();
-// getActivities();
-// getProtocols();
-// getActivityHistory();
-
-async function getUsers(db: Database) {
+// Helper functions to interact with the data store
+async function retrieveUsers() {
   try {
-    const dbRecords = await db.select("SELECT * FROM users");
+    const store = await getDataStore();
+    const dbRecords = await store.getUsers();
     console.log(dbRecords);
-    users = dbRecords as User[];
+    users = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as User[];
@@ -121,110 +44,128 @@ async function getUsers(db: Database) {
 
 async function addUser(user: User) {
   try {
-    const db = await Database.load(sqlite_path);
-    await db.execute("INSERT INTO users (name, email) VALUES ($1, $2)", [
+    const store = await getDataStore();
+    await store.execute("INSERT INTO users (name, email) VALUES ($1, $2)", [
       user.name,
       user.email,
     ]);
-    await getUsers(db);
+    await retrieveUsers();
   } catch (error) {
     console.log(error);
   }
 }
 
-async function getActivities(db: Database) {
+async function retrieveActivities() {
   try {
-    const dbRecords = await db.select("SELECT * FROM activities");
+    const store = await getDataStore();
+    const dbRecords = await store.getActivities();
     console.log(dbRecords);
-    activities = dbRecords as Activity[];
+    activities = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as Activity[];
   }
 }
 
-async function getProtocols(db: Database) {
+async function retrieveProtocols() {
   try {
-    const dbRecords = await db.select("SELECT * FROM protocols");
+    const store = await getDataStore();
+    const dbRecords = await store.getProtocols();
     console.log(dbRecords);
-    protocols = dbRecords as Protocol[];
+    protocols = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as Protocol[];
   }
 }
 
-async function getActivityProtocols(db: Database) {
+async function retrieveActivityProtocols() {
   try {
-    const dbRecords = await db.select("SELECT * FROM activity_protocols");
+    const store = await getDataStore();
+    const dbRecords = await store.getActivityProtocols();
     console.log(dbRecords);
-    activityProtocols = dbRecords as ActivityProtocol[];
+    activityProtocols = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as ActivityProtocol[];
   }
 }
 
-async function getActivityHistory(db: Database) {
+async function retrieveActivityHistory() {
   try {
-    const dbRecords = await db.select("SELECT * FROM activity_history");
+    const store = await getDataStore();
+    const dbRecords = await store.getActivityHistory();
     console.log(dbRecords);
-    activityHistory = dbRecords as ActivityHistory[];
+    activityHistory = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as ActivityHistory[];
   }
 }
 
-async function getSkillCategories(db: Database) {
+async function retrieveSkillCategories() {
   try {
-    const dbRecords = await db.select("SELECT * FROM skill_categories");
+    const store = await getDataStore();
+    const dbRecords = await store.getSkillCategories();
     console.log(dbRecords);
-    skillCategories = dbRecords as SkillCategory[];
+    skillCategories = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as SkillCategory[];
   }
 }
 
-async function getActivitySkills(db: Database) {
+async function retrieveActivitySkills() {
   try {
-    const dbRecords = await db.select("SELECT * FROM activity_skills");
+    const store = await getDataStore();
+    const dbRecords = await store.getActivitySkills();
     console.log(dbRecords);
-    activitySkills = dbRecords as ActivitySkill[];
+    activitySkills = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as ActivitySkill[];
   }
 }
 
-async function getSkillPrerequisites(db: Database) {
+async function retrieveSkillPrerequisites() {
   try {
-    const dbRecords = await db.select("SELECT * FROM skill_prerequisites");
+    const store = await getDataStore();
+    const dbRecords = await store.getSkillPrerequisites();
     console.log(dbRecords);
-    skillPrerequisites = dbRecords as SkillPrerequisite[];
+    skillPrerequisites = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as SkillPrerequisite[];
   }
 }
 
-async function getUserSkillProgress(db: Database, userId: number) {
+async function retrieveUserSkillProgress(userId: number) {
   try {
-    const dbRecords = await db.select("SELECT * FROM user_skill_progress WHERE user_id = $1", [userId]);
+    const store = await getDataStore();
+    const dbRecords = await store.getUserSkillProgress(userId);
     console.log(dbRecords);
-    userSkillProgress = dbRecords as UserSkillProgress[];
+    userSkillProgress = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as UserSkillProgress[];
   }
 }
 
-async function getAvailableUserSkills(db: Database, userId: number) {
+async function retrieveAvailableUserSkills(userId: number) {
   try {
-    const dbRecords = await db.select("SELECT * FROM available_user_skills WHERE user_id = $1", [userId]);
+    const store = await getDataStore();
+    const dbRecords = await store.getAvailableUserSkills(userId);
     console.log(dbRecords);
-    availableUserSkills = dbRecords as AvailableUserSkill[];
+    availableUserSkills = dbRecords;
+    return dbRecords;
   } catch (error) {
     console.log(error);
     return [] as AvailableUserSkill[];
@@ -233,13 +174,13 @@ async function getAvailableUserSkills(db: Database, userId: number) {
 
 async function addProtocol(protocol: Protocol) {
   try {
-    const db = await Database.load(sqlite_path);
-    const result = await db.execute(
+    const store = await getDataStore();
+    const result = await store.execute(
       "INSERT INTO protocols (name, source_code, description) VALUES ($1, $2, $3) RETURNING id",
       [protocol.name, protocol.sourceCode, protocol.description || ""]
     );
     console.log("Protocol created:", result);
-    await getProtocols(db);
+    await retrieveProtocols();
     return result.lastInsertId;
   } catch (error) {
     console.log(error);
@@ -249,20 +190,20 @@ async function addProtocol(protocol: Protocol) {
 
 async function addActivity(activity: Omit<Activity, 'id'>) {
   try {
-    const db = await Database.load(sqlite_path);
-    const result = await db.execute(
+    const store = await getDataStore();
+    const result = await store.execute(
       "INSERT INTO activities (name, description, video_guide, image_guide, activity_type, complexity_level) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
       [
-        activity.name, 
-        activity.description || "", 
-        activity.videoGuide || "", 
+        activity.name,
+        activity.description || "",
+        activity.videoGuide || "",
         activity.imageGuide || "",
         activity.activityType || "exercise",
         activity.complexityLevel || 1
       ]
     );
     console.log("Activity created:", result);
-    await getActivities(db);
+    await retrieveActivities();
     return result.lastInsertId;
   } catch (error) {
     console.log(error);
@@ -272,12 +213,8 @@ async function addActivity(activity: Omit<Activity, 'id'>) {
 
 async function findActivityByName(name: string) {
   try {
-    const db = await Database.load(sqlite_path);
-    const activities = await db.select(
-      "SELECT * FROM activities WHERE name = $1",
-      [name]
-    );
-    return activities.length > 0 ? activities[0] : null;
+    const store = await getDataStore();
+    return await store.findActivityByName(name);
   } catch (error) {
     console.log(error);
     return null;
@@ -286,10 +223,10 @@ async function findActivityByName(name: string) {
 
 async function addActivityProtocol(activityProtocol: Omit<ActivityProtocol, 'id'>) {
   try {
-    const db = await Database.load(sqlite_path);
+    const store = await getDataStore();
 
     // Check if this activity_protocol already exists
-    const existing = await db.select(
+    const existing = await store.select(
       "SELECT * FROM activity_protocols WHERE activity_id = $1 AND protocol_id = $2 AND parameters = $3",
       [activityProtocol.activityId, activityProtocol.protocolId, activityProtocol.parameters]
     );
@@ -299,12 +236,12 @@ async function addActivityProtocol(activityProtocol: Omit<ActivityProtocol, 'id'
       return existing[0].id;
     }
 
-    const result = await db.execute(
+    const result = await store.execute(
       "INSERT INTO activity_protocols (activity_id, protocol_id, parameters, created_at) VALUES ($1, $2, $3, $4) RETURNING id",
       [activityProtocol.activityId, activityProtocol.protocolId, activityProtocol.parameters, Date.now()]
     );
     console.log("Activity protocol created:", result);
-    await getActivityProtocols(db);
+    await retrieveActivityProtocols();
     return result.lastInsertId;
   } catch (error) {
     console.log(error);
@@ -314,13 +251,13 @@ async function addActivityProtocol(activityProtocol: Omit<ActivityProtocol, 'id'
 
 async function addSkillCategory(category: Omit<SkillCategory, 'id'>) {
   try {
-    const db = await Database.load(sqlite_path);
-    const result = await db.execute(
+    const store = await getDataStore();
+    const result = await store.execute(
       "INSERT INTO skill_categories (name, description, color) VALUES ($1, $2, $3) RETURNING id",
       [category.name, category.description || "", category.color || "#808080"]
     );
     console.log("Skill category created:", result);
-    await getSkillCategories(db);
+    await retrieveSkillCategories();
     return result.lastInsertId;
   } catch (error) {
     console.log(error);
@@ -330,10 +267,10 @@ async function addSkillCategory(category: Omit<SkillCategory, 'id'>) {
 
 async function addActivitySkill(skill: Omit<ActivitySkill, 'id'>) {
   try {
-    const db = await Database.load(sqlite_path);
-    
+    const store = await getDataStore();
+
     // Check if this skill already exists for this activity
-    const existing = await db.select(
+    const existing = await store.select(
       "SELECT * FROM activity_skills WHERE activity_id = $1 AND name = $2",
       [skill.activityId, skill.name]
     );
@@ -343,12 +280,12 @@ async function addActivitySkill(skill: Omit<ActivitySkill, 'id'>) {
       return existing[0].id;
     }
 
-    const result = await db.execute(
+    const result = await store.execute(
       "INSERT INTO activity_skills (activity_id, name, description, difficulty, category_id) VALUES ($1, $2, $3, $4, $5) RETURNING id",
       [skill.activityId, skill.name, skill.description || "", skill.difficulty, skill.categoryId || null]
     );
     console.log("Activity skill created:", result);
-    await getActivitySkills(db);
+    await retrieveActivitySkills();
     return result.lastInsertId;
   } catch (error) {
     console.log(error);
@@ -358,10 +295,10 @@ async function addActivitySkill(skill: Omit<ActivitySkill, 'id'>) {
 
 async function addSkillPrerequisite(prerequisite: Omit<SkillPrerequisite, 'id'>) {
   try {
-    const db = await Database.load(sqlite_path);
-    
+    const store = await getDataStore();
+
     // Check if this prerequisite relationship already exists
-    const existing = await db.select(
+    const existing = await store.select(
       "SELECT * FROM skill_prerequisites WHERE skill_id = $1 AND prerequisite_skill_id = $2",
       [prerequisite.skillId, prerequisite.prerequisiteSkillId]
     );
@@ -371,12 +308,12 @@ async function addSkillPrerequisite(prerequisite: Omit<SkillPrerequisite, 'id'>)
       return existing[0].id;
     }
 
-    const result = await db.execute(
+    const result = await store.execute(
       "INSERT INTO skill_prerequisites (skill_id, prerequisite_skill_id, required_mastery_level) VALUES ($1, $2, $3) RETURNING id",
       [prerequisite.skillId, prerequisite.prerequisiteSkillId, prerequisite.requiredMasteryLevel || 0.6]
     );
     console.log("Skill prerequisite created:", result);
-    await getSkillPrerequisites(db);
+    await retrieveSkillPrerequisites();
     return result.lastInsertId;
   } catch (error) {
     console.log(error);
@@ -386,44 +323,44 @@ async function addSkillPrerequisite(prerequisite: Omit<SkillPrerequisite, 'id'>)
 
 async function updateUserSkillProgress(progress: UserSkillProgress) {
   try {
-    const db = await Database.load(sqlite_path);
-    
+    const store = await getDataStore();
+
     // Check if the user already has progress for this skill
-    const existing = await db.select(
+    const existing = await store.select(
       "SELECT * FROM user_skill_progress WHERE user_id = $1 AND skill_id = $2",
       [progress.userId, progress.skillId]
     );
 
     if (existing.length > 0) {
       // Update existing record
-      const result = await db.execute(
+      const result = await store.execute(
         "UPDATE user_skill_progress SET mastery_level = $1, last_practiced_at = $2, total_practice_time_ms = $3, practice_count = $4 WHERE id = $5 RETURNING id",
         [
-          progress.masteryLevel, 
-          progress.lastPracticedAt || Date.now(), 
-          progress.totalPracticeTimeMs, 
+          progress.masteryLevel,
+          progress.lastPracticedAt || Date.now(),
+          progress.totalPracticeTimeMs,
           progress.practiceCount,
           existing[0].id
         ]
       );
       console.log("User skill progress updated:", result);
-      await getUserSkillProgress(db, progress.userId);
+      await retrieveUserSkillProgress(progress.userId);
       return existing[0].id;
     } else {
       // Insert new record
-      const result = await db.execute(
+      const result = await store.execute(
         "INSERT INTO user_skill_progress (user_id, skill_id, mastery_level, last_practiced_at, total_practice_time_ms, practice_count) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
         [
-          progress.userId, 
-          progress.skillId, 
-          progress.masteryLevel, 
-          progress.lastPracticedAt || Date.now(), 
-          progress.totalPracticeTimeMs || 0, 
+          progress.userId,
+          progress.skillId,
+          progress.masteryLevel,
+          progress.lastPracticedAt || Date.now(),
+          progress.totalPracticeTimeMs || 0,
           progress.practiceCount || 1
         ]
       );
       console.log("User skill progress created:", result);
-      await getUserSkillProgress(db, progress.userId);
+      await retrieveUserSkillProgress(progress.userId);
       return result.lastInsertId;
     }
   } catch (error) {
@@ -665,22 +602,22 @@ export function bindSession() {
     get currentUser() { return currentUser; },
     set currentUser(user: User) { currentUser = user; },
     loadData: async function () {
-      const db = await Database.load(sqlite_path);
-      console.log(db);
+      const store = await getDataStore();
+      console.log(store);
 
-      await getUsers(db);
-      await getActivities(db);
-      await getProtocols(db);
-      await getActivityProtocols(db);
-      await getActivityHistory(db);
-      await getSkillCategories(db);
-      await getActivitySkills(db);
-      await getSkillPrerequisites(db);
-      
+      await retrieveUsers();
+      await retrieveActivities();
+      await retrieveProtocols();
+      await retrieveActivityProtocols();
+      await retrieveActivityHistory();
+      await retrieveSkillCategories();
+      await retrieveActivitySkills();
+      await retrieveSkillPrerequisites();
+
       // Only load user-specific data if there's a current user
       if (currentUser && currentUser.id) {
-        await getUserSkillProgress(db, currentUser.id);
-        await getAvailableUserSkills(db, currentUser.id);
+        await retrieveUserSkillProgress(currentUser.id);
+        await retrieveAvailableUserSkills(currentUser.id);
       }
     }
   };
