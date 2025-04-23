@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getPlatform } from "../../../data/store-factory";
   import { page } from "$app/stores";
   import {
     bindProtocols,
@@ -15,17 +16,43 @@
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { convertFileSrc } from "@tauri-apps/api/core";
 
-  onMount(async () => {
-    const appDataDirPath = await appDataDir();
-    const filePath = await join(appDataDirPath, "video/full_body_calisthenics.mp4");
-    const assetUrl = convertFileSrc(filePath);
+  // export let data;
+  let { data } = $props();
 
-    const video = document.getElementById("video-guide") as HTMLVideoElement;
-    const source = document.createElement("source");
-    source.type = "video/mp4";
-    source.src = assetUrl;
-    video.appendChild(source);
-    video.load();
+  onMount(async () => {
+    const platform = getPlatform();
+
+    console.log(`Initializing data store for platform: ${platform}`);
+
+    // Create the appropriate data store implementation based on platform
+    switch (platform) {
+      case "web":
+        // dataStore = new WebStore();
+        break;
+      case "desktop":
+      case "mobile":
+        // dataStore = new SQLiteStore();
+        const appDataDirPath = await appDataDir();
+        const filePath = await join(
+          appDataDirPath,
+          "video/full_body_calisthenics.mp4",
+        );
+        const assetUrl = convertFileSrc(filePath);
+
+        const video = document.getElementById(
+          "video-guide",
+        ) as HTMLVideoElement;
+        const source = document.createElement("source");
+        source.type = "video/mp4";
+        source.src = assetUrl;
+        video.appendChild(source);
+        video.load();
+        break;
+      default:
+        // Fallback to WebStore if platform cannot be determined
+        console.warn("Unknown platform, using WebStore as fallback");
+      // dataStore = new WebStore();
+    }
   });
   $effect(() => {
     const id = Number($page.params.id);
@@ -49,11 +76,18 @@
     {#if protocol.description}
       <p class="description">{protocol.description}</p>
     {/if}
+
+    <section class="supabase">
+      {#each data.countries as country}
+        <li>{country.name}</li>
+      {/each}
+    </section>
+
     <section class="video-section">
-      <h2>Video Guide</h2>
+      <h2>Activity Guide</h2>
       <!-- svelte-ignore a11y_media_has_caption -->
       <video id="video-guide" controls>
-        <p>Your browser does not support HTML5 video.</p>
+        <p>Your browser does not support HTML5 video :(</p>
       </video>
     </section>
     <section class="source-code-section">

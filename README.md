@@ -18,4 +18,16 @@ pnpm tauri ios dev
 export ANDROID_HOME=/Users/michael.garrido/Library/Android/sdk
 export NDK_HOME=/Users/michael.garrido/Library/Android/sdk/ndk/29.0.13113456
 pnpm tauri android dev
->>>>>>> 36aa9de (SQLite working)
+
+
+building for Tauri desktop or mobile
+https://v2.tauri.app/reference/config/
+
+https://v2.vitejs.dev/guide/env-and-mode.html#modes
+https://vite.dev/guide/env-and-mode
+building for web
+pnpm run build:web
+node --env-file=.env.local build
+
+
+vite build --mode production

@@ -151,6 +151,7 @@ pub fn run() {
             app.get_webview_window("main").unwrap().open_devtools();
             Ok(())
         })
+        .plugin(tauri_plugin_os::init())
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations(SQLITE_PATH, migrations)

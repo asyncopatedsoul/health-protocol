@@ -25,3 +25,7 @@ The user has a textarea to input and submit the protocol source_code. on submit,
 - then if a record in activity_protocols does not exist with the same activity_id and parameters, create a new record in activity_protocols for that line of parsed text
 
 Also create a view for browsing all saved protocols and a detail view to show each associated activity_protocols record with the activity name and parameters.
+
+#
+Extending the sqlite schema defined in migrations in src-tauri/src/lib.rs,
+design a backend schema, frontend data structure, and interactive view as nodes to show the relationship between different activities as skills that can progress to more complex activities and protocols and also show the user's progression or relative amount of skill mastery based on their activity history.
