@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Protocol - Activities Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #visualization {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .control-group h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+        select, button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 14px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #3d8b40;
+        }
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .legend-group {
+            background-color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        .loading, .error {
+            padding: 20px;
+            text-align: center;
+        }
+        .error {
+            color: #d32f2f;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 10;
+            max-width: 250px;
+        }
+        .info {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .info h2 {
+            margin-top: 0;
+            color: #2e7d32;
+            font-size: 18px;
+        }
+        .info p {
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Health Protocol Activities Visualization</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>Filter by Type</h3>
+                <select id="type-filter">
+                    <option value="all">All Types</option>
+                    <option value="breathwork">Breathwork</option>
+                    <option value="calisthenics">Calisthenics</option>
+                    <option value="meditation">Meditation</option>
+                    <option value="strength">Strength</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <h3>Filter by Relationship</h3>
+                <select id="relationship-filter">
+                    <option value="all">All Relationships</option>
+                    <option value="related_skill">Related Skills</option>
+                    <option value="compound_skill">Compound Skills</option>
+                    <option value="prerequisite_skill">Prerequisite Skills</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <h3>Layout</h3>
+                <button id="reset-layout">Reset Layout</button>
+            </div>
+        </div>
+        
+        <div id="visualization">
+            <div class="loading">Loading visualization...</div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-group">
+                <div class="legend-title">Activity Types</div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #4CAF50;"></div>
+                    <div>Breathwork</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #FF9800;"></div>
+                    <div>Calisthenics</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #9C27B0;"></div>
+                    <div>Meditation</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #F44336;"></div>
+                    <div>Strength</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #607D8B;"></div>
+                    <div>Other</div>
+                </div>
+            </div>
+            
+            <div class="legend-group">
+                <div class="legend-title">Relationship Types</div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #999;"></div>
+                    <div>Related Skill</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #1E88E5;"></div>
+                    <div>Compound Skill</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #E53935;"></div>
+                    <div>Prerequisite Skill</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info">
+            <h2>Interactive Visualization</h2>
+            <p>
+                This visualization displays activities and their relationships from the Health Protocol database.
+                Each node represents an activity, with colors indicating the activity type. Lines between nodes
+                show relationships between activities, with different colors for relationship types.
+            </p>
+            <p>
+                <strong>Interaction:</strong> Drag nodes to reposition them, hover to see details, and use the
+                controls above to filter the visualization.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let simulation;
+            let originalData;
+            let filteredData;
+            let svg;
+            let width = 960;
+            let height = 600;
+            let tooltip;
+            
+            // Create tooltip
+            tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+            
+            // Try to fetch data from API first, then fall back to static JSON file
+            fetch('/api/activities')
+                .then(response => {
+                    if (!response.ok) {
+                        // If API fails, try the static JSON file
+                        console.log('API request failed, falling back to static JSON file');
+                        return fetch('/activities-data.json');
+                    }
+                    return response;
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error fetching activity data: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Store original data
+                    originalData = data;
+                    filteredData = JSON.parse(JSON.stringify(originalData)); // Deep copy
+                    
+                    // Remove loading message
+                    d3.select('#visualization').select('.loading').remove();
+                    
+                    // Create visualization
+                    createVisualization();
+                    
+                    // Set up event listeners for filters
+                    document.getElementById('type-filter').addEventListener('change', filterData);
+                    document.getElementById('relationship-filter').addEventListener('change', filterData);
+                    document.getElementById('reset-layout').addEventListener('click', resetLayout);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    d3.select('#visualization')
+                        .select('.loading')
+                        .classed('loading', false)
+                        .classed('error', true)
+                        .html(`Error loading visualization: ${error.message}`);
+                });
+            
+            function createVisualization() {
+                // Create SVG
+                svg = d3.select('#visualization')
+                    .append('svg')
+                    .attr('width', width)
+                    .attr('height', height)
+                    .attr('viewBox', [0, 0, width, height]);
+                
+                // Define arrow markers for links
+                svg.append('defs').selectAll('marker')
+                    .data(['related_skill', 'compound_skill', 'prerequisite_skill'])
+                    .join('marker')
+                    .attr('id', d => `arrow-${d}`)
+                    .attr('viewBox', '0 -5 10 10')
+                    .attr('refX', 25)
+                    .attr('refY', 0)
+                    .attr('markerWidth', 6)
+                    .attr('markerHeight', 6)
+                    .attr('orient', 'auto')
+                    .append('path')
+                    .attr('fill', d => {
+                        if (d === 'related_skill') return '#999';
+                        if (d === 'compound_skill') return '#1E88E5';
+                        return '#E53935'; // prerequisite_skill
+                    })
+                    .attr('d', 'M0,-5L10,0L0,5');
+                
+                updateVisualization();
+            }
+            
+            function updateVisualization() {
+                // Create force simulation
+                simulation = d3.forceSimulation(filteredData.nodes)
+                    .force('link', d3.forceLink(filteredData.links)
+                        .id(d => d.id)
+                        .distance(100))
+                    .force('charge', d3.forceManyBody().strength(-300))
+                    .force('center', d3.forceCenter(width / 2, height / 2))
+                    .force('collision', d3.forceCollide().radius(40));
+                
+                // Remove existing links and nodes
+                svg.selectAll('.link').remove();
+                svg.selectAll('.node').remove();
+                
+                // Create links
+                const link = svg.append('g')
+                    .selectAll('path')
+                    .data(filteredData.links)
+                    .join('path')
+                    .attr('class', 'link')
+                    .attr('stroke', d => {
+                        if (d.type === 'related_skill') return '#999';
+                        if (d.type === 'compound_skill') return '#1E88E5';
+                        return '#E53935'; // prerequisite_skill
+                    })
+                    .attr('stroke-width', 1.5)
+                    .attr('stroke-opacity', 0.6)
+                    .attr('fill', 'none')
+                    .attr('marker-end', d => `url(#arrow-${d.type})`);
+                
+                // Create a group for each node
+                const node = svg.append('g')
+                    .selectAll('.node')
+                    .data(filteredData.nodes)
+                    .join('g')
+                    .attr('class', 'node')
+                    .call(d3.drag()
+                        .on('start', dragstarted)
+                        .on('drag', dragged)
+                        .on('end', dragended))
+                    .on('mouseover', function(event, d) {
+                        tooltip.transition()
+                            .duration(200)
+                            .style('opacity', .9);
+                        tooltip.html(`
+                            <strong>${d.name}</strong><br>
+                            Type: ${d.type || 'Unknown'}<br>
+                            Difficulty: ${d.difficulty || 1}<br>
+                            Complexity: ${d.complexity || 1}
+                        `)
+                            .style('left', (event.pageX + 10) + 'px')
+                            .style('top', (event.pageY - 28) + 'px');
+                    })
+                    .on('mouseout', function() {
+                        tooltip.transition()
+                            .duration(500)
+                            .style('opacity', 0);
+                    });
+                
+                // Add circles to the node groups
+                node.append('circle')
+                    .attr('r', d => 10 + 2 * (d.difficulty || 1))
+                    .attr('fill', d => {
+                        switch(d.type) {
+                            case 'breathwork': return '#4CAF50';
+                            case 'calisthenics': return '#FF9800';
+                            case 'meditation': return '#9C27B0';
+                            case 'strength': return '#F44336';
+                            default: return '#607D8B';
+                        }
+                    })
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 1.5);
+                
+                // Add text labels
+                node.append('text')
+                    .text(d => d.name)
+                    .attr('x', 15)
+                    .attr('y', 4)
+                    .attr('font-size', '12px')
+                    .attr('font-family', 'sans-serif');
+                
+                // Update positions on tick
+                simulation.on('tick', () => {
+                    link.attr('d', linkArc);
+                    node.attr('transform', d => `translate(${d.x},${d.y})`);
+                });
+            }
+            
+            function filterData() {
+                const typeFilter = document.getElementById('type-filter').value;
+                const relationshipFilter = document.getElementById('relationship-filter').value;
+                
+                // Start with a copy of the original data
+                filteredData = JSON.parse(JSON.stringify(originalData));
+                
+                // Filter nodes by type
+                if (typeFilter !== 'all') {
+                    filteredData.nodes = filteredData.nodes.filter(node => node.type === typeFilter);
+                    
+                    // Get IDs of filtered nodes
+                    const nodeIds = new Set(filteredData.nodes.map(node => node.id));
+                    
+                    // Filter links to only include those connecting filtered nodes
+                    filteredData.links = filteredData.links.filter(link => 
+                        nodeIds.has(link.source) && nodeIds.has(link.target)
+                    );
+                }
+                
+                // Filter links by relationship type
+                if (relationshipFilter !== 'all') {
+                    filteredData.links = filteredData.links.filter(link => link.type === relationshipFilter);
+                    
+                    // If we're filtering by relationship, ensure we have all nodes needed for these links
+                    const requiredNodeIds = new Set();
+                    filteredData.links.forEach(link => {
+                        requiredNodeIds.add(link.source);
+                        requiredNodeIds.add(link.target);
+                    });
+                    
+                    // If we were filtering by type, we need to add back any nodes required by the relationships
+                    if (typeFilter !== 'all') {
+                        originalData.nodes.forEach(node => {
+                            if (requiredNodeIds.has(node.id) && !filteredData.nodes.some(n => n.id === node.id)) {
+                                filteredData.nodes.push(node);
+                            }
+                        });
+                    }
+                }
+                
+                // Update the visualization
+                updateVisualization();
+            }
+            
+            function resetLayout() {
+                // Reset the simulation with current data
+                simulation.alpha(1).restart();
+            }
+            
+            // Functions for dragging behavior
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+            
+            // Function to draw curved links
+            function linkArc(d) {
+                const dx = d.target.x - d.source.x;
+                const dy = d.target.y - d.source.y;
+                const dr = Math.sqrt(dx * dx + dy * dy);
+                return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+            }
+        });
+    </script>
+</body>
+</html>
