@@ -33,16 +33,37 @@
     
     const width = 960;
     const height = 600;
+    const nodeRadius = 20; // Maximum node radius for boundary calculations
     
     // Clear any existing SVG
     d3.select('#visualization').selectAll('*').remove();
     
-    // Create SVG
+    // Create zoom behavior
+    const zoom = d3.zoom()
+      .scaleExtent([0.2, 5]) // Zoom scale limits
+      .on('zoom', (event) => {
+        graphGroup.attr('transform', event.transform);
+      });
+    
+    // Create SVG with zoom behavior
     const svg = d3.select('#visualization')
       .append('svg')
       .attr('width', width)
       .attr('height', height)
-      .attr('viewBox', [0, 0, width, height]);
+      .attr('viewBox', [0, 0, width, height])
+      .call(zoom)
+      .on('dblclick.zoom', null); // Disable double-click zoom to allow for node interactions
+    
+    // Add rectangle to catch mouse events for panning
+    svg.append('rect')
+      .attr('width', width)
+      .attr('height', height)
+      .attr('fill', 'none')
+      .attr('pointer-events', 'all');
+    
+    // Add group for graph content that will be transformed during zoom
+    const graphGroup = svg.append('g')
+      .attr('class', 'graph-content');
     
     // Define arrow markers for links
     svg.append('defs').selectAll('marker')
@@ -70,10 +91,13 @@
         .distance(100))
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(40));
+      .force('collision', d3.forceCollide().radius(40))
+      // Add forces to keep nodes within bounds
+      .force('x', d3.forceX(width / 2).strength(0.05))
+      .force('y', d3.forceY(height / 2).strength(0.05));
     
     // Create links
-    const link = svg.append('g')
+    const link = graphGroup.append('g')
       .selectAll('path')
       .data(data.links)
       .join('path')
@@ -88,7 +112,7 @@
       .attr('marker-end', d => `url(#arrow-${d.type})`);
     
     // Create a group for each node
-    const node = svg.append('g')
+    const node = graphGroup.append('g')
       .selectAll('.node')
       .data(data.nodes)
       .join('g')
@@ -128,8 +152,15 @@ Type: ${d.type || 'Unknown'}
 Difficulty: ${d.difficulty || 1}
 Complexity: ${d.complexity || 1}`);
     
-    // Update positions on tick
+    // Update positions on tick with boundary constraints
     simulation.on('tick', () => {
+      // Constrain nodes within canvas bounds
+      data.nodes.forEach(d => {
+        d.x = Math.max(nodeRadius, Math.min(width - nodeRadius, d.x));
+        d.y = Math.max(nodeRadius, Math.min(height - nodeRadius, d.y));
+      });
+      
+      // Update position of links and nodes
       link.attr('d', linkArc);
       node.attr('transform', d => `translate(${d.x},${d.y})`);
     });
@@ -142,14 +173,15 @@ Complexity: ${d.complexity || 1}`);
     }
     
     function dragged(event, d) {
-      d.fx = event.x;
-      d.fy = event.y;
+      // Constrain drag within canvas bounds
+      d.fx = Math.max(nodeRadius, Math.min(width - nodeRadius, event.x));
+      d.fy = Math.max(nodeRadius, Math.min(height - nodeRadius, event.y));
     }
     
     function dragended(event, d) {
       if (!event.active) simulation.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
+      // Option 2: Keep positions fixed after drag (better for manual arrangement)
+      // Already set by 'dragged' function
     }
     
     // Function to draw curved links
@@ -160,9 +192,34 @@ Complexity: ${d.complexity || 1}`);
       return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
     }
     
-    // Legend for node types
-    const legend = svg.append('g')
-      .attr('transform', 'translate(20, 20)');
+    // Create a fixed overlay container for controls and legends
+    const overlay = svg.append('g')
+      .attr('class', 'overlay')
+      .attr('pointer-events', 'none'); // Ensure it doesn't interfere with graph interactions
+    
+    // Add a semi-transparent background for the legend
+    overlay.append('rect')
+      .attr('x', 10)
+      .attr('y', 10)
+      .attr('width', 280)
+      .attr('height', 150)
+      .attr('rx', 5)
+      .attr('ry', 5)
+      .attr('fill', 'rgba(255, 255, 255, 0.85)');
+    
+    // Legend for node types - pinned to top left
+    const legend = overlay.append('g')
+      .attr('transform', 'translate(20, 20)')
+      .attr('pointer-events', 'all'); // Make legend items clickable
+    
+    // Add legend title
+    legend.append('text')
+      .attr('x', 0)
+      .attr('y', -5)
+      .text('Activity Types')
+      .style('font-size', '14px')
+      .style('font-weight', 'bold')
+      .attr('font-family', 'sans-serif');
     
     const nodeTypes = [
       { type: 'breathwork', color: '#4CAF50', label: 'Breathwork' },
@@ -174,7 +231,7 @@ Complexity: ${d.complexity || 1}`);
     
     nodeTypes.forEach((item, i) => {
       const legendRow = legend.append('g')
-        .attr('transform', `translate(0, ${i * 20})`);
+        .attr('transform', `translate(0, ${i * 20 + 15})`);
       
       legendRow.append('rect')
         .attr('width', 10)
@@ -190,8 +247,18 @@ Complexity: ${d.complexity || 1}`);
     });
     
     // Legend for relationship types
-    const relationLegend = svg.append('g')
-      .attr('transform', `translate(150, 20)`);
+    const relationLegend = overlay.append('g')
+      .attr('transform', `translate(150, 20)`)
+      .attr('pointer-events', 'all');
+    
+    // Add legend title
+    relationLegend.append('text')
+      .attr('x', 0)
+      .attr('y', -5)
+      .text('Relationship Types')
+      .style('font-size', '14px')
+      .style('font-weight', 'bold')
+      .attr('font-family', 'sans-serif');
     
     const relationTypes = [
       { type: 'related_skill', color: '#999', label: 'Related Skill' },
@@ -201,7 +268,7 @@ Complexity: ${d.complexity || 1}`);
     
     relationTypes.forEach((item, i) => {
       const legendRow = relationLegend.append('g')
-        .attr('transform', `translate(0, ${i * 20})`);
+        .attr('transform', `translate(0, ${i * 20 + 15})`);
       
       legendRow.append('line')
         .attr('x1', 0)
@@ -218,6 +285,94 @@ Complexity: ${d.complexity || 1}`);
         .style('font-size', '12px')
         .attr('font-family', 'sans-serif');
     });
+    
+    // Create background for zoom controls
+    overlay.append('rect')
+      .attr('x', width - 50)
+      .attr('y', height - 120)
+      .attr('width', 40)
+      .attr('height', 110)
+      .attr('rx', 5)
+      .attr('ry', 5)
+      .attr('fill', 'rgba(255, 255, 255, 0.85)');
+    
+    // Create zoom controls - pinned to bottom right
+    const zoomControls = overlay.append('g')
+      .attr('class', 'zoom-controls')
+      .attr('transform', `translate(${width - 30}, ${height - 100})`)
+      .attr('pointer-events', 'all'); // Make zoom buttons clickable
+    
+    // Zoom in button
+    const zoomIn = zoomControls.append('g')
+      .attr('class', 'zoom-button')
+      .attr('transform', 'translate(0, 0)')
+      .style('cursor', 'pointer')
+      .on('click', () => {
+        svg.transition().duration(300).call(zoom.scaleBy, 1.3);
+      });
+    
+    zoomIn.append('circle')
+      .attr('r', 15)
+      .attr('fill', '#4CAF50')
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.5);
+    
+    zoomIn.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0.3em')
+      .attr('fill', '#fff')
+      .attr('font-size', '20px')
+      .attr('font-weight', 'bold')
+      .text('+');
+    
+    // Zoom out button
+    const zoomOut = zoomControls.append('g')
+      .attr('class', 'zoom-button')
+      .attr('transform', 'translate(0, 40)')
+      .style('cursor', 'pointer')
+      .on('click', () => {
+        svg.transition().duration(300).call(zoom.scaleBy, 0.7);
+      });
+    
+    zoomOut.append('circle')
+      .attr('r', 15)
+      .attr('fill', '#F44336')
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.5);
+    
+    zoomOut.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0.3em')
+      .attr('fill', '#fff')
+      .attr('font-size', '20px')
+      .attr('font-weight', 'bold')
+      .text('-');
+    
+    // Reset zoom button
+    const resetZoom = zoomControls.append('g')
+      .attr('class', 'zoom-button')
+      .attr('transform', 'translate(0, 80)')
+      .style('cursor', 'pointer')
+      .on('click', () => {
+        svg.transition().duration(300).call(
+          zoom.transform,
+          d3.zoomIdentity
+        );
+      });
+    
+    resetZoom.append('circle')
+      .attr('r', 15)
+      .attr('fill', '#2196F3')
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.5);
+    
+    resetZoom.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0.3em')
+      .attr('fill', '#fff')
+      .attr('font-size', '16px')
+      .attr('font-weight', 'bold')
+      .text('R');
   }
 </script>
 
@@ -245,6 +400,8 @@ Complexity: ${d.complexity || 1}`);
     <ul>
       <li>Drag nodes to reposition them</li>
       <li>Hover over nodes to see details</li>
+      <li>Use the mouse wheel or zoom buttons to zoom in/out</li>
+      <li>Click and drag the background to pan the view</li>
       <li>Colors represent different activity types</li>
       <li>Lines represent different relationship types between activities</li>
     </ul>
@@ -270,6 +427,8 @@ Complexity: ${d.complexity || 1}`);
     border-radius: 5px;
     overflow: hidden;
     margin-bottom: 20px;
+    height: 600px; /* Fixed height to match SVG */
+    position: relative; /* For positioning overlays */
   }
   
   .error {
