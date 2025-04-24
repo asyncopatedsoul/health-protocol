@@ -16,6 +16,8 @@ import requests
 from typing import Dict, List, Any, Optional, Union
 import re
 
+from dotenv import load_dotenv
+load_dotenv()
 
 def load_prompts_from_yaml(yaml_file_path: str) -> Dict[str, Any]:
     """

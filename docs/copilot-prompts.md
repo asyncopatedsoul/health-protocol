@@ -41,3 +41,18 @@ with the schema in tools/schema.sql, create a Flask app that provides a REST API
 
 #
 in the SvelteKit app at tools/admin-app create an interactive visualization with d3.js of all activities and ActivityRelationships in tools/admin-app/health_protocol.db with schemas at tools/schema.sql
+
+#
+update tools/youtube_to_gif.py to download and clip videos based on a YAML file with clip times
+
+#
+From the following example API request to Google Gemini LLM, create a python script that inputs a YAML of LLM prompts, extracts CSV data from the response, and saves all extracted CSV data to 1 CSV file.
+
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=GEMINI_API_KEY" \
+-H 'Content-Type: application/json' \
+-X POST \
+-d '{
+  "contents": [{
+    "parts":[{"text": "Explain how AI works"}]
+    }]
+   }'
