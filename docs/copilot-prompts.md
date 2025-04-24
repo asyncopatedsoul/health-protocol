@@ -29,3 +29,15 @@ Also create a view for browsing all saved protocols and a detail view to show ea
 #
 Extending the sqlite schema defined in migrations in src-tauri/src/lib.rs,
 design a backend schema, frontend data structure, and interactive view as nodes to show the relationship between different activities as skills that can progress to more complex activities and protocols and also show the user's progression or relative amount of skill mastery based on their activity history.
+
+#
+Given the attached SQLite schemas, create a python script that generates a test data set with records for each table and correct foreign key relationships. The dataset should represent 3 users practicing various wellness activities such as breath work, meditation, strength training, and calisthenics.
+
+#
+Using the schema defined in _ update data models in src/data/models.svelte.ts to expose this data to the frontend web app
+
+#
+with the schema in tools/schema.sql, create a Flask app that provides a REST API to tools/health_protocol.db
+
+#
+in the SvelteKit app at tools/admin-app create an interactive visualization with d3.js of all activities and ActivityRelationships in tools/admin-app/health_protocol.db with schemas at tools/schema.sql

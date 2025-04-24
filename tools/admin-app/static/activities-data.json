@@ -1,0 +1,164 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Box Breathing",
+      "type": "breathwork",
+      "difficulty": 1,
+      "complexity": 1,
+      "activity_type": "exercise",
+      "description": "4-4-4-4 breathing pattern"
+    },
+    {
+      "id": 2,
+      "name": "Wim Hof Method",
+      "type": "breathwork",
+      "difficulty": 2,
+      "complexity": 2,
+      "activity_type": "exercise",
+      "description": "Intensive breathing exercise followed by cold exposure"
+    },
+    {
+      "id": 3,
+      "name": "4-7-8 Breathing",
+      "type": "breathwork",
+      "difficulty": 1,
+      "complexity": 1,
+      "activity_type": "exercise",
+      "description": "Relaxing breathing technique"
+    },
+    {
+      "id": 4,
+      "name": "Mindfulness Meditation",
+      "type": "meditation",
+      "difficulty": 1,
+      "complexity": 1,
+      "activity_type": "exercise",
+      "description": "Present moment awareness"
+    },
+    {
+      "id": 5,
+      "name": "Body Scan Meditation",
+      "type": "meditation",
+      "difficulty": 2,
+      "complexity": 2,
+      "activity_type": "exercise",
+      "description": "Systematic attention to body parts"
+    },
+    {
+      "id": 6,
+      "name": "Loving-Kindness Meditation",
+      "type": "meditation",
+      "difficulty": 2,
+      "complexity": 2,
+      "activity_type": "exercise",
+      "description": "Cultivating compassion"
+    },
+    {
+      "id": 7,
+      "name": "Push-ups",
+      "type": "calisthenics",
+      "difficulty": 2,
+      "complexity": 1,
+      "activity_type": "exercise",
+      "description": "Basic upper body exercise"
+    },
+    {
+      "id": 8,
+      "name": "Pull-ups",
+      "type": "calisthenics",
+      "difficulty": 3,
+      "complexity": 2,
+      "activity_type": "exercise",
+      "description": "Upper body pulling exercise"
+    },
+    {
+      "id": 9,
+      "name": "Squats",
+      "type": "calisthenics",
+      "difficulty": 2,
+      "complexity": 1,
+      "activity_type": "exercise",
+      "description": "Lower body compound exercise"
+    },
+    {
+      "id": 10,
+      "name": "Deadlift",
+      "type": "strength",
+      "difficulty": 3,
+      "complexity": 2,
+      "activity_type": "exercise",
+      "description": "Posterior chain exercise"
+    },
+    {
+      "id": 11,
+      "name": "Bench Press",
+      "type": "strength",
+      "difficulty": 3,
+      "complexity": 2,
+      "activity_type": "exercise",
+      "description": "Upper body pushing exercise"
+    },
+    {
+      "id": 12,
+      "name": "Shoulder Press",
+      "type": "strength",
+      "difficulty": 2,
+      "complexity": 2,
+      "activity_type": "exercise",
+      "description": "Vertical pushing exercise"
+    }
+  ],
+  "links": [
+    {
+      "source": 1,
+      "target": 3,
+      "type": "related_skill"
+    },
+    {
+      "source": 4,
+      "target": 5,
+      "type": "related_skill"
+    },
+    {
+      "source": 4,
+      "target": 6,
+      "type": "related_skill"
+    },
+    {
+      "source": 7,
+      "target": 8,
+      "type": "related_skill"
+    },
+    {
+      "source": 9,
+      "target": 10,
+      "type": "related_skill"
+    },
+    {
+      "source": 11,
+      "target": 12,
+      "type": "related_skill"
+    },
+    {
+      "source": 1,
+      "target": 4,
+      "type": "compound_skill"
+    },
+    {
+      "source": 7,
+      "target": 9,
+      "type": "compound_skill"
+    },
+    {
+      "source": 10,
+      "target": 11,
+      "type": "compound_skill"
+    },
+    {
+      "source": 8,
+      "target": 7,
+      "type": "prerequisite_skill"
+    }
+  ]
+}

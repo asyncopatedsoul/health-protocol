@@ -1,33 +1,60 @@
-# health-protocol
-a cross-platform app for helping users implement physical and mental health protocols in their daily life.
+# Health Protocol Test Data Generator
 
-# Tauri + SvelteKit
+This project provides a set of Python scripts to generate test data for the Health Protocol app database. The test data includes users, activities, skills, protocols, and more, with realistic relationships between entities.
 
-This template should help get you started developing with Tauri and SvelteKit in Vite.
+## Project Structure
 
-## Recommended IDE Setup
+```
+/health-protocol/
+├── schema_utils.py        # Database initialization utilities
+├── main.py                # Main script to run data generation
+├── paste.txt              # Original schema SQL
+├── data_generators/       # Data generation modules
+│   ├── __init__.py        # Package initialization
+│   ├── utils.py           # Shared utility functions
+│   ├── users.py           # User data generators
+│   ├── metadata.py        # Metadata tables (difficulties, body areas, tags)
+│   ├── activities.py      # Activity data generators
+│   ├── skills.py          # Skills data generators
+│   ├── protocols.py       # Protocols data generators
+│   ├── playlists.py       # Playlist data generators
+│   └── guides.py          # Guide data generators
+```
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+## Usage
 
+1. Ensure you have the schema SQL in `paste.txt` in the root directory.
+2. Run the main script to generate the test data:
 
+```bash
+python main.py
+```
 
-## iOS Dev
-pnpm tauri ios dev
+The script will:
+1. Create a new SQLite database file (`health_protocol.db`)
+2. Set up the schema from `paste.txt`
+3. Generate test data for all tables
+4. Insert the data into the database with proper relationships
 
-## Android Dev
-export ANDROID_HOME=/Users/michael.garrido/Library/Android/sdk
-export NDK_HOME=/Users/michael.garrido/Library/Android/sdk/ndk/29.0.13113456
-pnpm tauri android dev
+## Generated Data
 
+The generated test data includes:
 
-building for Tauri desktop or mobile
-https://v2.tauri.app/reference/config/
+- 3 users (John Doe, Jane Smith, Michael Johnson)
+- 12 different activities across 4 categories (breathwork, meditation, calisthenics, strength)
+- Activity metadata (body areas, difficulties, tags, media)
+- User activity history (15-30 activities per user)
+- Skills for each activity with prerequisites
+- User skill progress based on practice history
+- Protocols that combine activities
+- Playlists of activities for different goals
+- Guides with content for various wellness practices
 
-https://v2.vitejs.dev/guide/env-and-mode.html#modes
-https://vite.dev/guide/env-and-mode
-building for web
-pnpm run build:web
-node --env-file=.env.local build
+## Customization
 
+You can modify any of the data generator files to customize the test data according to your needs. Each module has separate generator functions that you can adjust independently.
 
-vite build --mode production
+## Requirements
+
+- Python 3.6 or higher
+- SQLite3

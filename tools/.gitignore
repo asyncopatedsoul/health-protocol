@@ -1,2 +1,3 @@
 .venv
 temp_video
+__pycache__
