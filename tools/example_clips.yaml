@@ -1,0 +1,40 @@
+# Example configuration for YouTube to GIF/MP4 converter
+# This file demonstrates how to define multiple clips from a single YouTube video
+
+# The URL of the YouTube video to download
+youtube_url: "https://www.youtube.com/shorts/_P63NrBN49U"
+
+# Directory where output files will be stored (will be created if it doesn't exist)
+output_dir: "workout_clips"
+
+# List of clips to extract from the video
+clips:
+  - name: "senada_get_up"
+    start_time: 3
+    end_time: 7
+    resize_factor: 0.5  # Optional, only used for GIFs
+    fps: 15             # Optional, only used for GIFs
+
+  - name: "squat_jumps"
+    start_time: 9
+    end_time: 11
+    
+  - name: "hollow_body_flutter_kicks"
+    start_time: 12
+    end_time: 14
+    
+  - name: "dynamic_lateral_lunge_to_reverse_lunge"
+    start_time: 15
+    end_time: 18
+    
+  - name: "lateral_bear_walks"
+    start_time: 20
+    end_time: 24
+    
+  - name: "kneeling_step_up"
+    start_time: 25
+    end_time: 29
+    
+  - name: "pushups_with_alt_leg_raise"
+    start_time: 30
+    end_time: 35
