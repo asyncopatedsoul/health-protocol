@@ -1,0 +1,19 @@
+# Example configuration for LLM CSV Extractor
+# This file demonstrates how to define prompts for generating CSV data from LLM responses
+
+# API key for Google Gemini (can also be set as environment variable GEMINI_API_KEY)
+# api_key: "YOUR_GEMINI_API_KEY"
+
+# Model to use (optional, defaults to gemini-2.0-flash)
+model: "gemini-2.0-flash"
+
+# List of prompts to send to the LLM
+prompts:
+  - name: "morning_exercises"
+    text: "Generate a CSV table of 5 morning exercises for beginners with the following columns: Exercise Name, Duration (minutes), Target Body Area, Difficulty (1-5), Equipment Required (yes/no). Use a comma delimiter and ensure data is well structured for CSV parsing."
+
+  - name: "evening_stretches"
+    text: "Generate a CSV table of 5 evening stretches to help with sleep with the following columns: Stretch Name, Duration (minutes), Target Body Area, Difficulty (1-5), Benefits. Use a comma delimiter and ensure data is well structured for CSV parsing."
+
+  - name: "meditation_techniques"
+    text: "Generate a CSV table of 5 meditation techniques for stress reduction with the following columns: Technique Name, Duration (minutes), Focus Type, Difficulty (1-5), Benefits. Use a comma delimiter and ensure data is well structured for CSV parsing."
