@@ -2,6 +2,11 @@ import os
 import mimetypes
 from dotenv import load_dotenv
 from supabase import create_client, Client
+import urllib.parse
+
+# Basic URL escaping
+# original_string = "Hello world! Special chars: &?=/"
+# escaped_string = urllib.parse.quote(original_string)
 load_dotenv()
 # https://github.com/supabase/supabase-py
 url: str = os.environ.get("SUPABASE_URL")
@@ -25,7 +30,23 @@ def upload_file(file_path: str, file_name: str, bucket_name: str, mime_type: str
     }
     response = db_client.storage.from_(bucket_name).upload(file_name, f, file_options)
     print(response)
+    # UploadResponse(path='squat jumps.mp4', full_path='video/squat jumps.mp4', fullPath='video/squat jumps.mp4')
+    # https://cqyxglfnwcdaswovbosz.supabase.co/storage/v1/object/public/video//squat%20jumps.mp4
     return response
+
+def get_public_url(file_name: str, bucket_name: str):
+  response = db_client.storage.from_(bucket_name).get_public_url(file_name)
+  print(response)
+  return response
+
+def insert_media(mime_type: str, storage_path: str, url: str):
+  query = db_client.table("media").insert({
+    "mime_type": mime_type,
+    "storage_path": storage_path,
+    "url": url
+  }).execute()
+  print(query)
+  return query
 
 def upload_directory(directory_path: str, bucket_name: str):
   """
@@ -47,8 +68,14 @@ def upload_directory(directory_path: str, bucket_name: str):
         if mime_type is None:
           mime_type = 'application/octet-stream'  # Default MIME type if detection fails
         
-        upload_file(file_path, filename, bucket_name, mime_type)
+        response = upload_file(file_path, filename, bucket_name, mime_type)
         print(f"Successfully uploaded {filename} (MIME type: {mime_type})")
+
+        public_url = get_public_url(filename, bucket_name)
+        print(f"Successfully got public URL for {filename}")
+
+        insert_media(mime_type, response.path, public_url)
+        print(f"Successfully inserted media for {filename}")
       except Exception as e:
         print(f"Failed to upload {filename}: {str(e)}")
 
