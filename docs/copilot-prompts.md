@@ -56,3 +56,6 @@ curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:g
     "parts":[{"text": "Explain how AI works"}]
     }]
    }'
+
+#
+in core_data.py implement functions to retrieve a record in supabase media table by id, create a Guide and MediaType in memgraph from the data in supabase media record, and associate with an Activity in memgraph
