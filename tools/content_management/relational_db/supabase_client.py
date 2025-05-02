@@ -13,12 +13,12 @@ load_dotenv()
 # https://github.com/supabase/supabase-py
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
-db_client: Client = create_client(url, key)
+supabase_client: Client = create_client(url, key)
 
 
 def get_all_countries():
-    data = db_client.table("countries").select("*").execute()
-    # data = db_client.table("countries").select("*").eq("name", "IL").execute()
+    data = supabase_client.table("countries").select("*").execute()
+    # data = supabase_client.table("countries").select("*").eq("name", "IL").execute()
 
     # Assert we pulled real data.
     print(data)
@@ -71,14 +71,15 @@ def upload_file(file_path: str, file_name: str, bucket_name: str, mime_type: str
         file_options = {
             "content-type": mime_type,
         }
-        response = db_client.storage.from_(
+        response = supabase_client.storage.from_(
             bucket_name).upload(file_name, f, file_options)
         print(response)
         return response
 
 
 def get_public_url(file_name: str, bucket_name: str):
-    response = db_client.storage.from_(bucket_name).get_public_url(file_name)
+    response = supabase_client.storage.from_(
+        bucket_name).get_public_url(file_name)
     print(response)
     url = response.split("://")
     protocol = url[0]
@@ -88,7 +89,7 @@ def get_public_url(file_name: str, bucket_name: str):
 
 def insert_media(mime_type: str, storage_path: str, url: str, metadata: dict):
 
-    query = db_client.table("media").insert({
+    query = supabase_client.table("media").insert({
         "mime_type": mime_type,
         "storage_path": storage_path,
         "url": url,
@@ -142,6 +143,17 @@ def upload_directory(directory_path: str, bucket_name: str):
                 print(f"Failed to upload {filename}: {str(e)}")
 
 
+def sign_in_with_oauth():
+    # scopes = ["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"]
+    response = supabase_client.auth.sign_in_with_oauth({
+        "provider": "google",
+        "scopes": "email,profile",
+        "redirect_to": "https://localhost:4000/oauth/google",
+    }
+    )
+    print(response)
+
+
 def main():
     # countries = get_all_countries()
     # for country in countries:
@@ -151,9 +163,11 @@ def main():
     #   ()
     # ]
     # upload_file("test.txt", "test.txt")
-    directory_path = "video/upload"
-    bucket_name = "video"
-    upload_directory(directory_path, bucket_name)
+    # directory_path = "video/upload"
+    # bucket_name = "video"
+    # upload_directory(directory_path, bucket_name)
+
+    sign_in_with_oauth()
 
 
 if __name__ == "__main__":

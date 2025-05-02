@@ -1,5 +1,5 @@
 <script lang="ts">
-  
+  import { supabase } from "$lib/supabaseClient";
   import {
     bindUsers,
     bindSession,
@@ -23,6 +23,138 @@
   let totalSkills = $state(0);
   let userSkillsCount = $state(0);
   let averageMastery = $state(0);
+
+  async function handleSignInWithGoogle(response) {
+    console.log("handleSignInWithGoogle");
+    console.log(response);
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: "google",
+      token: response.credential,
+    });
+    console.log(error);
+    console.log(data);
+
+//     {
+//     "session": {
+//         "access_token": "GOOGLE_ACCESS_TOKEN",
+//         "token_type": "bearer",
+//         "expires_in": 3600,
+//         "expires_at": 1746189360,
+//         "refresh_token": "GOOGLE_REFRESH_TOKEN",
+//         "user": {
+//             "id": "GOOGLE_EMAIL",
+//             "aud": "authenticated",
+//             "role": "authenticated",
+//             "email": "GOOGLE_EMAIL",
+//             "email_confirmed_at": "2025-05-02T10:19:42.699561Z",
+//             "phone": "",
+//             "confirmed_at": "2025-05-02T10:19:42.699561Z",
+//             "last_sign_in_at": "2025-05-02T11:36:00.36165141Z",
+//             "app_metadata": {
+//                 "provider": "google",
+//                 "providers": [
+//                     "google"
+//                 ]
+//             },
+//             "user_metadata": {
+//                 "avatar_url": "https://lh3.googleusercontent.com/a/...",
+//                 "email": "GOOGLE_EMAIL",
+//                 "email_verified": true,
+//                 "full_name": "GOOGLE_USERNAME",
+//                 "iss": "https://accounts.google.com",
+//                 "name": "GOOGLE_USERNAME",
+//                 "phone_verified": false,
+//                 "picture": "https://lh3.googleusercontent.com/a/...",
+//                 "provider_id": "GOOGLE_ID",
+//                 "sub": "GOOGLE_ID"
+//             },
+//             "identities": [
+//                 {
+//                     "identity_id": "SUPABASE_AUTH_ID",
+//                     "id": "GOOGLE_ID",
+//                     "user_id": "SUPABASE_AUTH_USER_ID",
+//                     "identity_data": {
+//                         "avatar_url": "GOOGLE_AVATAR_URL",
+//                         "email": "GOOGLE_EMAIL",
+//                         "email_verified": true,
+//                         "full_name": "GOOGLE_USERNAME",
+//                         "iss": "https://accounts.google.com",
+//                         "name": "GOOGLE_USERNAME",
+//                         "phone_verified": false,
+//                         "picture": "GOOGLE_AVATAR_URL",
+//                         "provider_id": "GOOGLE_ID",
+//                         "sub": "GOOGLE_ID"
+//                     },
+//                     "provider": "google",
+//                     "last_sign_in_at": "2025-05-02T10:19:42.692696Z",
+//                     "created_at": "2025-05-02T10:19:42.69276Z",
+//                     "updated_at": "2025-05-02T10:19:42.69276Z",
+//                     "email": "GOOGLE_EMAIL"
+//                 }
+//             ],
+//             "created_at": "2025-05-02T10:19:42.682492Z",
+//             "updated_at": "2025-05-02T11:36:00.364921Z",
+//             "is_anonymous": false
+//         }
+//     },
+//     "user": {
+//         "id": "SUPABASE_AUTH_USER_ID",
+//         "aud": "authenticated",
+//         "role": "authenticated",
+//         "email": "GOOGLE_EMAIL",
+//         "email_confirmed_at": "2025-05-02T10:19:42.699561Z",
+//         "phone": "",
+//         "confirmed_at": "2025-05-02T10:19:42.699561Z",
+//         "last_sign_in_at": "2025-05-02T11:36:00.36165141Z",
+//         "app_metadata": {
+//             "provider": "google",
+//             "providers": [
+//                 "google"
+//             ]
+//         },
+//         "user_metadata": {
+//             "avatar_url": "GOOGLE_AVATAR_URL",
+//             "email": "GOOGLE_EMAIL",
+//             "email_verified": true,
+//             "full_name": "GOOGLE_USERNAME",
+//             "iss": "https://accounts.google.com",
+//             "name": "GOOGLE_USERNAME",
+//             "phone_verified": false,
+//             "picture": "GOOGLE_AVATAR_URL",
+//             "provider_id": "GOOGLE_ID",
+//             "sub": "GOOGLE_ID"
+//         },
+//         "identities": [
+//             {
+//                 "identity_id": "SUPABASE_AUTH_ID",
+//                 "id": "GOOGLE_ID",
+//                 "user_id": "SUPABASE_AUTH_USER_ID",
+//                 "identity_data": {
+//                     "avatar_url": "GOOGLE_AVATAR_URL",
+//                     "email": "GOOGLE_EMAIL",
+//                     "email_verified": true,
+//                     "full_name": "GOOGLE_USERNAME",
+//                     "iss": "https://accounts.google.com",
+//                     "name": "GOOGLE_USERNAME",
+//                     "phone_verified": false,
+//                     "picture": "GOOGLE_AVATAR_URL",
+//                     "provider_id": "GOOGLE_ID",
+//                     "sub": "GOOGLE_ID"
+//                 },
+//                 "provider": "google",
+//                 "last_sign_in_at": "2025-05-02T10:19:42.692696Z",
+//                 "created_at": "2025-05-02T10:19:42.69276Z",
+//                 "updated_at": "2025-05-02T10:19:42.69276Z",
+//                 "email": "GOOGLE_EMAIL"
+//             }
+//         ],
+//         "created_at": "2025-05-02T10:19:42.682492Z",
+//         "updated_at": "2025-05-02T11:36:00.364921Z",
+//         "is_anonymous": false
+//     }
+// }
+  }
+  window.handleSignInWithGoogle = handleSignInWithGoogle;
 
   async function createUser(event) {
     event.preventDefault();
@@ -89,6 +221,15 @@
       Track your progress, build your skills, achieve your health goals
     </p>
   </div>
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  <div
+    id="g_id_onload"
+    data-client_id="259278640793-40shultnr3ibgg6lf5h8e3m4hpripvg9.apps.googleusercontent.com"
+    data-context="signin"
+    data-callback="handleSignInWithGoogle"
+    data-auto_select="true"
+    data-itp_support="true"
+  ></div>
 
   <section class="supabase">
     {#each data.countries as country}
