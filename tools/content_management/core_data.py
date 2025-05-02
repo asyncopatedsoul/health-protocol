@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import Optional, List
 from supabase import Client, create_client
-from gqlalchemy import Memgraph, Node, Relationship, Field
+from gqlalchemy import Memgraph, Node, Relationship, Field, match, create
 import json
 import os
 from dotenv import load_dotenv
+from relational_db.supabase_client import upload_directory
 
 # Load environment variables
 load_dotenv()
@@ -19,11 +20,13 @@ db = Memgraph()
 
 class MediaType(Node):
     name: str = Field(unique=True, db=db)
-    formats: list[str] = Field(db=db)
+    # formats: list[str] = Field(db=db)
+    formats: Optional[list[str]] = Field(exists=True, db=db)
 
 
 class Guide(Node):
     url: str = Field(unique=True, db=db)
+    name: str = Field(unique=True, db=db)
     title: str = Field(db=db)
     uploadedAt: str = Field(db=db)
     format: str = Field(db=db)
@@ -81,10 +84,12 @@ def create_guide_from_media(media_record: dict, activity_name: str) -> bool:
     Returns:
         bool: True if successful, False otherwise
     """
+    print(
+        f"Creating guide from media record: {media_record} and activity name: {activity_name}")
     try:
         # Parse metadata from JSON string
         metadata = json.loads(media_record.get("metadata", "{}"))
-
+        print(f"Metadata: {metadata}")
         # Get Activity using direct query
         activity_query = f"""
         MATCH (a:Activity)
@@ -103,21 +108,28 @@ def create_guide_from_media(media_record: dict, activity_name: str) -> bool:
         print(f"Activity ID: {activity_id}")
         # Create or load MediaType
         media_type_name = media_record.get("mime_type", "").split("/")[0]
-        try:
-            media_type = MediaType(name=media_type_name).load(db)
-            media_type_id = media_type._id
-        except:
-            media_type = MediaType(
-                name=media_type_name,
-                formats=[media_record.get("mime_type", "").split("/")[-1]]
-            ).save(db)
-            media_type_id = media_type._id
+        print(f"Media Type Name: {media_type_name}")
+        media_type = MediaType(name=media_type_name).load(db)
+        media_type_id = media_type._id
+        # try:
+        #     media_type = MediaType(name=media_type_name).load(db)
+        #     media_type_id = media_type._id
+        # except:
+        #     media_type = MediaType(
+        #         name=media_type_name,
+        #         formats=[media_record.get("mime_type", "").split("/")[-1]]
+        #     ).save(db)
+        #     media_type_id = media_type._id
         print(f"Media Type ID: {media_type_id}")
         # Create or load Guide
+
+        guide_name = media_record.get("storage_path").split(".")[0]
         try:
+            print(f"try updating existing Guide: {guide_name}")
             guide = Guide(url=media_record["url"]).load(db)
             # Update guide properties
-            guide.title = media_record.get("title", "")
+            guide.name = guide_name
+            guide.title = guide_name
             guide.uploadedAt = media_record.get("created_at", "")
             guide.format = media_record.get("mime_type", "").split("/")[-1]
             guide.fileSize = metadata.get("filesize")
@@ -126,9 +138,11 @@ def create_guide_from_media(media_record: dict, activity_name: str) -> bool:
             guide.save(db)
             guide_id = guide._id
         except:
+            print(f"try creating new Guide: {guide_name}")
             guide = Guide(
                 url=media_record["url"],
-                title=media_record.get("title", ""),
+                name=guide_name,
+                title=guide_name,
                 uploadedAt=media_record.get("created_at", ""),
                 format=media_record.get("mime_type", "").split("/")[-1],
                 fileSize=metadata.get("filesize"),
@@ -147,46 +161,79 @@ def create_guide_from_media(media_record: dict, activity_name: str) -> bool:
             # Check if OF_TYPE relationship exists
             of_type_check = """
             MATCH (g:Guide)-[r:OF_TYPE]->(mt:MediaType)
-            WHERE g._id = $guide_id AND mt._id = $media_type_id
+            WHERE id(g) = $guide_id AND id(mt) = $media_type_id
             RETURN count(r) as count
             """
             result = db.execute_and_fetch(of_type_check, {
                 "guide_id": guide_id,
                 "media_type_id": media_type_id
             })
-            if next(result)["count"] == 0:
+            result = next(result)
+            print(f"OF_TYPE check result: {result}")
+            if result["count"] == 0:
+                print(
+                    f"Creating OF_TYPE relationship for {guide_name} and {media_type_name}")
                 # Create OF_TYPE relationship
-                of_type_create = """
-                MATCH (g:Guide), (mt:MediaType)
-                WHERE g._id = $guide_id AND mt._id = $media_type_id
-                CREATE (g)-[:OF_TYPE]->(mt)
-                """
-                db.execute_and_fetch(of_type_create, {
-                    "guide_id": guide_id,
-                    "media_type_id": media_type_id
-                })
-
+                # of_type_create = """
+                # MATCH (g:Guide), (mt:MediaType)
+                # WHERE id(g) = $guide_id AND id(mt) = $media_type_id
+                # CREATE (g)-[:OF_TYPE]->(mt)
+                # """
+                # db.execute_and_fetch(of_type_create, {
+                #     "guide_id": guide_id,
+                #     "media_type_id": media_type_id
+                # })
+                query = (
+                    match()
+                    .node(labels="Guide", name=guide_name, variable="g")
+                    .match()
+                    .node(labels="MediaType", name=media_type_name, variable="mt")
+                    .create()
+                    .node(variable="g")
+                    .to(relationship_type="OF_TYPE")
+                    .node(variable="mt")
+                    .execute()
+                )
+                print(f"OF_TYPE create result: {query}")
             # Check if HAS_GUIDE relationship exists
             has_guide_check = """
             MATCH (a:Activity)-[r:HAS_GUIDE]->(g:Guide)
-            WHERE a._id = $activity_id AND g._id = $guide_id
+            WHERE id(a) = $activity_id AND id(g) = $guide_id
             RETURN count(r) as count
             """
             result = db.execute_and_fetch(has_guide_check, {
                 "activity_id": activity_id,
                 "guide_id": guide_id
             })
-            if next(result)["count"] == 0:
+            result = next(result)
+            print(f"HAS_GUIDE check result: {result}")
+            if result["count"] == 0:
+                print(
+                    f"Creating HAS_GUIDE relationship for {activity_name} and {guide_name}")
+                # match().node(labels="User", id=0, variable="u").match().node(labels="Movie", id=0, variable="m").create().node(variable="u").to(edge_label="RATED", rating=5.0).node(variable="m").execute()
                 # Create HAS_GUIDE relationship
-                has_guide_create = """
-                MATCH (a:Activity), (g:Guide)
-                WHERE a._id = $activity_id AND g._id = $guide_id
-                CREATE (a)-[:HAS_GUIDE]->(g)
-                """
-                db.execute_and_fetch(has_guide_create, {
-                    "activity_id": activity_id,
-                    "guide_id": guide_id
-                })
+                # has_guide_create = """
+                # MATCH (a:Activity), (g:Guide)
+                # WHERE id(a) = $activity_id AND id(g) = $guide_id
+                # CREATE (a)-[:HAS_GUIDE]->(g)
+                # """
+                # result = db.execute_and_fetch(has_guide_create, {
+                #     "activity_id": activity_id,
+                #     "guide_id": guide_id
+                # })
+                # print(f"HAS_GUIDE create result: {next(result)}")
+                query = (
+                    match()
+                    .node(labels="Activity", name=activity_name, variable="a")
+                    .match()
+                    .node(labels="Guide", name=guide_name, variable="g")
+                    .create()
+                    .node(variable="a")
+                    .to(relationship_type="HAS_GUIDE")
+                    .node(variable="g")
+                    .execute()
+                )
+                print(f"HAS_GUIDE create result: {query}")
 
         except Exception as e:
             print(f"Error creating relationships: {str(e)}")
@@ -220,45 +267,87 @@ def sync_media_to_guide(supabase_client: Client, media_id: int, activity_name: s
     return create_guide_from_media(media_record, activity_name)
 
 
+def audit_database():
+    """
+    Audit the database by retrieving all nodes of each Node class.
+    """
+    # List of all Node classes
+    node_classes = [Guide, Activity, MediaType]
+
+    for node_class in node_classes:
+        print(f"\nAuditing {node_class.__name__} nodes:")
+        try:
+            # Get all nodes of this class
+            nodes = node_class.load_all(db)
+            for node in nodes:
+                print(f"  - {node}")
+        except Exception as e:
+            print(f"  Error retrieving {node_class.__name__} nodes: {str(e)}")
+
+
+def upload_activity_from_media(media_record: dict):
+    """
+    Upload an activity from a media record.
+    """
+    # Extract filename without extension for activity name
+    filename = os.path.basename(media_record["storage_path"])
+    activity_name = os.path.splitext(filename)[0]
+
+    metadata = json.loads(media_record.get("metadata", "{}"))
+    duration = metadata.get("duration")
+    # Create Activity node if it doesn't exist
+    try:
+        activity = Activity(name=activity_name).load(db)
+        print(f"Activity '{activity_name}' already exists")
+    except:
+        activity = Activity(
+            name=activity_name,
+            description=f"Activity for {activity_name}",
+            duration=duration,
+            difficulty="beginner"  # Default difficulty
+        ).save(db)
+        print(f"Created new Activity: {activity_name}")
+
+    # Step 4: Sync media to guide and link to activity
+    print(
+        f"Syncing media {media_record['id']} to guide for activity '{activity_name}'...")
+    success = sync_media_to_guide(
+        supabase_client, media_record["id"], activity_name)
+
+    if success:
+        print(
+            f"Successfully synced media {media_record['id']} to guide for activity '{activity_name}'")
+    else:
+        print(
+            f"Failed to sync media {media_record['id']} to guide for activity '{activity_name}'")
+    pass
+
+# export PYTHON_PATH=/Users/artlings/Documents/GitHub/health-protocol/tools:$PYTHON_PATH
+
+
 def main():
     """
     Main function demonstrating the usage of all methods.
     """
-    # Example media ID and activity name
-    media_id = 16  # Replace with actual media ID from your Supabase database
-    # Replace with actual activity name from your Memgraph database
-    activity_name = "dynamic lateral lunge to reverse lunge"
+    # Directory containing files to upload
+    directory_path = "video/upload"
+    bucket_name = "video"
 
-    print(f"Syncing media ID {media_id} to activity '{activity_name}'...")
+    # Step 1: Upload files to Supabase
+    print(f"Uploading files from {directory_path} to Supabase...")
+    upload_directory(directory_path, bucket_name)
 
-    # Sync media to guide
-    success = sync_media_to_guide(supabase_client, media_id, activity_name)
+    # Step 2: Get all media records from Supabase
+    print("Retrieving media records from Supabase...")
+    media_records = supabase_client.table("media").select("*").execute().data
 
-    if success:
-        print("Successfully synced media to guide!")
+    # Step 3: Process each media record
+    for media_record in media_records:
+        upload_activity_from_media(media_record)
 
-        # Verify the created guide
-        try:
-            guide = Guide(url=supabase_client.table("media").select(
-                "url").eq("id", media_id).execute().data[0]["url"]).load(db)
-            print(f"Created/Updated Guide:")
-            print(f"  Title: {guide.title}")
-            print(f"  URL: {guide.url}")
-            print(f"  Format: {guide.format}")
-            print(f"  Duration: {guide.duration}")
-            print(f"  File Size: {guide.fileSize}")
-
-            # Get related MediaType
-            media_type = MediaType(name=guide.format.split("/")[0]).load(db)
-            print(f"  Media Type: {media_type.name}")
-
-            # Get related Activity
-            activity = Activity(name=activity_name).load(db)
-            print(f"  Linked to Activity: {activity.name}")
-        except Exception as e:
-            print(f"Error verifying created guide: {str(e)}")
-    else:
-        print("Failed to sync media to guide.")
+    # Step 5: Audit the database
+    # print("\nAuditing database...")
+    # audit_database()
 
 
 if __name__ == "__main__":

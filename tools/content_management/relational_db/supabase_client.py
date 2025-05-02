@@ -80,7 +80,10 @@ def upload_file(file_path: str, file_name: str, bucket_name: str, mime_type: str
 def get_public_url(file_name: str, bucket_name: str):
     response = db_client.storage.from_(bucket_name).get_public_url(file_name)
     print(response)
-    return response
+    url = response.split("://")
+    protocol = url[0]
+    [path, query] = url[1].split("?")
+    return protocol+'://'+urllib.parse.quote(path)+'?'+query
 
 
 def insert_media(mime_type: str, storage_path: str, url: str, metadata: dict):
