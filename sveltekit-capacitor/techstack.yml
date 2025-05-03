@@ -1,0 +1,183 @@
+repo_name: kesc23/sveltekit-capacitor
+report_id: 7637fb6b8b2d28c6d8a12794229cae8b
+version: 0.1
+repo_type: Public
+timestamp: '2024-04-16T17:03:46+00:00'
+requested_by: kesc23
+provider: github
+branch: master
+detected_tools_count: 12
+tools:
+- name: JavaScript
+  description: Lightweight, interpreted, object-oriented language with first-class
+    functions
+  website_url: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1209/javascript.jpeg
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor
+  detection_source: Repo Metadata
+- name: TypeScript
+  description: A superset of JavaScript that compiles to clean JavaScript output
+  website_url: http://www.typescriptlang.org
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1612/bynNY5dJ.jpg
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor
+  detection_source: Repo Metadata
+- name: Svelte
+  description: A UI framework that compiles into tiny standalone JavaScript modules
+  website_url: https://svelte.technology/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Javascript UI Libraries
+  image_url: https://img.stackshare.io/service/6113/7exmJEg4_400x400.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor/blob/master/package.json
+  detection_source: package.json
+  last_updated_by: Kevin Campos
+  last_updated_on: 2023-11-05 19:45:01.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor
+  detection_source: Repo Metadata
+- name: Vite
+  description: Native-ESM powered web dev build tool
+  website_url: https://vitejs.dev/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: JS Build Tools / JS Task Runners
+  image_url: https://img.stackshare.io/service/21547/default_1aeac791cde11ff66cc0b20dcc6144eeb185c905.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor/blob/master/package.json
+  detection_source: package.json
+  last_updated_by: Macleod Sawyer
+  last_updated_on: 2020-08-23 23:46:22.000000000 Z
+- name: npm
+  description: The package manager for JavaScript.
+  website_url: https://www.npmjs.com/
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Front End Package Manager
+  image_url: https://img.stackshare.io/service/1120/lejvzrnlpb308aftn31u.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor/blob/master/package.json
+  detection_source: package.json
+  last_updated_by: Macleod Sawyer
+  last_updated_on: 2020-08-23 23:46:22.000000000 Z
+- name: vite
+  description: Native-ESM powered web dev build tool
+  package_url: https://www.npmjs.com/vite
+  version: 4.4.2
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Package Managers
+  image_url: https://img.stackshare.io/package/npm/image.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor/blob/master/package.json
+  detection_source: package.json
+  last_updated_by: Kevin Campos
+  last_updated_on: 2023-11-05 19:45:01.000000000 Z
+  vulnerabilities:
+  - name: Vite dev server option `server.fs.deny` can be bypassed when hosted on case-insensitive
+      filesystem
+    cve_id: CVE-2024-23331
+    cve_url: https://github.com/advisories/GHSA-c24v-8rfc-w8vw
+    detected_date: Jan 20
+    severity: high
+    first_patched: 4.5.2
+  - name: Vite's `server.fs.deny` did not deny requests for patterns with directories.
+    cve_id: CVE-2024-31207
+    cve_url: https://github.com/advisories/GHSA-8jhw-289h-jh2g
+    detected_date: Apr 4
+    severity: moderate
+    first_patched: 4.5.3
+  - name: Vite XSS vulnerability in `server.transformIndexHtml` via URL payload
+    cve_id: CVE-2023-49293
+    cve_url: https://github.com/advisories/GHSA-92r3-m2mg-pj97
+    detected_date: Dec 6
+    severity: moderate
+    first_patched: 4.4.12
+- name: "@capacitor/android"
+  description: 'Capacitor: cross-platform mobile apps with the web'
+  package_url: https://www.npmjs.com/@capacitor/android
+  version: 5.5.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/18635/default_bf8e3a124777a0b74b29a154804ecb0eb173f1e9.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor/blob/master/package.json
+  detection_source: package.json
+  last_updated_by: Kevin Campos
+  last_updated_on: 2023-11-05 19:45:01.000000000 Z
+- name: "@capacitor/core"
+  description: 'Capacitor: cross-platform mobile apps with the web'
+  package_url: https://www.npmjs.com/@capacitor/core
+  version: 5.5.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17678/default_52c11a434d2ce37281914a7f804e07cf95ab96f7.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor/blob/master/package.json
+  detection_source: package.json
+  last_updated_by: Kevin Campos
+  last_updated_on: 2023-11-05 19:45:01.000000000 Z
+- name: "@capacitor/ios"
+  description: 'Capacitor: cross-platform mobile apps with the web'
+  package_url: https://www.npmjs.com/@capacitor/ios
+  version: 5.5.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/18638/default_f02e96cdbc1c3cf01dabe59b227d3b3961e56b72.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor/blob/master/package.json
+  detection_source: package.json
+  last_updated_by: Kevin Campos
+  last_updated_on: 2023-11-05 19:45:01.000000000 Z
+- name: cross-env
+  description: Run scripts that set and use environment variables across platforms
+  package_url: https://www.npmjs.com/cross-env
+  version: 7.0.3
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15828/default_14fd11531839d935f920b6d55bd6f3528c890ad7.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor/blob/master/package.json
+  detection_source: package.json
+  last_updated_by: Kevin Campos
+  last_updated_on: 2023-11-05 19:45:01.000000000 Z
+- name: npm-run-all
+  description: A CLI tool to run multiple npm-scripts in parallel or sequential
+  package_url: https://www.npmjs.com/npm-run-all
+  version: 4.1.5
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15926/default_b45165a5d30e541ab11711a34a78209b3e8ed7fd.png
+  detection_source_url: https://github.com/kesc23/sveltekit-capacitor/blob/master/package.json
+  detection_source: package.json
+  last_updated_by: Kevin Campos
+  last_updated_on: 2023-11-05 19:45:01.000000000 Z
