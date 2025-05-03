@@ -20,9 +20,15 @@ importers:
       '@capacitor/live-updates':
         specifier: ^0.4.0
         version: 0.4.0(@capacitor/core@7.2.0)
+      '@capgo/capacitor-data-storage-sqlite':
+        specifier: ^6.0.59
+        version: 6.0.59(@capacitor/core@7.2.0)(localforage@1.10.0)
       '@capgo/capacitor-social-login':
         specifier: ^7.5.3
         version: 7.5.3(@capacitor/core@7.2.0)
+      '@revenuecat/purchases-capacitor':
+        specifier: ^10.2.3
+        version: 10.2.3(@capacitor/core@7.2.0)
       '@supabase/supabase-js':
         specifier: ^2.49.4
         version: 2.49.4
@@ -86,6 +92,12 @@ packages:
     resolution: {integrity: sha512-UwrA72yKgui17x+qBZGs8qI8Z98zTj1GeCqFZ/A9q06SIeeaN97yfMcxlA5yL7awRysSEM9Wu31eH33j2UKbIw==}
     peerDependencies:
       '@capacitor/core': ^7.0.0
+
+  '@capgo/capacitor-data-storage-sqlite@6.0.59':
+    resolution: {integrity: sha512-1h2afpsTjlFOQicNtLHfCN45V5s5fP2Gvh/3HvKtGm30A35g/VIDsFhh250vBjyK7rh4rn3LfL139Fl0mXs3Hw==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+      localforage: ^1.10.0
 
   '@capgo/capacitor-social-login@7.5.3':
     resolution: {integrity: sha512-YR7IWJFusHSSUI9PUkxtibwraBTsOzv9ftifi2gQVyvOcPKn3Tg5dJX6U4r6D9TvKIlIkiSMJ4WBUZYpcamJeg==}
@@ -284,6 +296,14 @@ packages:
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
+
+  '@revenuecat/purchases-capacitor@10.2.3':
+    resolution: {integrity: sha512-NLdZ9/mtRbpIvqbm1hme2W9kUkFroQbDah54YGDH3RtNAF8gFFIlGimus0Lk7wD89sEvQI6UdwHDaAJUun0X9w==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@revenuecat/purchases-typescript-internal-esm@13.28.0':
+    resolution: {integrity: sha512-W80jeLX8678SgFsf9NwILBfUS7GgKgYZSev4/Ry3L+d0jVAZ9HvCdfp9AiBbIVzsKGW9ZYfk9lPhlmv5SoYTtQ==}
 
   '@supabase/auth-js@2.69.1':
     resolution: {integrity: sha512-FILtt5WjCNzmReeRLq5wRs3iShwmnWgBvxHfqapC/VoljJl+W8hDAyFmf1NVw3zH+ZjZ05AKxiKxVeb0HNWRMQ==}
@@ -808,6 +828,9 @@ packages:
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
+  immediate@3.0.6:
+    resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
+
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
     deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
@@ -972,9 +995,15 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
+  lie@3.1.1:
+    resolution: {integrity: sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==}
+
   load-json-file@4.0.0:
     resolution: {integrity: sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw==}
     engines: {node: '>=4'}
+
+  localforage@1.10.0:
+    resolution: {integrity: sha512-14/H1aX7hzBBmmh7sGPd+AOMkkIrHM3Z1PAyGgZigA1H1p5O5ANnMyWzvpAETtG68/dC4pC0ncy3+PPGzXZHPg==}
 
   locate-character@3.0.0:
     resolution: {integrity: sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA==}
@@ -1724,6 +1753,11 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.2.0
 
+  '@capgo/capacitor-data-storage-sqlite@6.0.59(@capacitor/core@7.2.0)(localforage@1.10.0)':
+    dependencies:
+      '@capacitor/core': 7.2.0
+      localforage: 1.10.0
+
   '@capgo/capacitor-social-login@7.5.3(@capacitor/core@7.2.0)':
     dependencies:
       '@capacitor/core': 7.2.0
@@ -1899,6 +1933,13 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.0
 
   '@polka/url@1.0.0-next.29': {}
+
+  '@revenuecat/purchases-capacitor@10.2.3(@capacitor/core@7.2.0)':
+    dependencies:
+      '@capacitor/core': 7.2.0
+      '@revenuecat/purchases-typescript-internal-esm': 13.28.0
+
+  '@revenuecat/purchases-typescript-internal-esm@13.28.0': {}
 
   '@supabase/auth-js@2.69.1':
     dependencies:
@@ -2543,6 +2584,8 @@ snapshots:
 
   ieee754@1.2.1: {}
 
+  immediate@3.0.6: {}
+
   inflight@1.0.6:
     dependencies:
       once: 1.4.0
@@ -2705,12 +2748,20 @@ snapshots:
 
   kleur@4.1.5: {}
 
+  lie@3.1.1:
+    dependencies:
+      immediate: 3.0.6
+
   load-json-file@4.0.0:
     dependencies:
       graceful-fs: 4.2.11
       parse-json: 4.0.0
       pify: 3.0.0
       strip-bom: 3.0.0
+
+  localforage@1.10.0:
+    dependencies:
+      lie: 3.1.1
 
   locate-character@3.0.0: {}
 

@@ -37,7 +37,9 @@
     "@capacitor/core": "^7.2.0",
     "@capacitor/ios": "^7.2.0",
     "@capacitor/live-updates": "^0.4.0",
+    "@capgo/capacitor-data-storage-sqlite": "^6.0.59",
     "@capgo/capacitor-social-login": "^7.5.3",
+    "@revenuecat/purchases-capacitor": "^10.2.3",
     "@supabase/supabase-js": "^2.49.4"
   },
   "type": "module"

@@ -33,7 +33,7 @@
     });
     console.log(error);
     console.log(data);
-
+  }
 //     {
 //     "session": {
 //         "access_token": "GOOGLE_ACCESS_TOKEN",
@@ -153,7 +153,7 @@
 //         "is_anonymous": false
 //     }
 // }
-  }
+  
   window.handleSignInWithGoogle = handleSignInWithGoogle;
 
   async function createUser(event) {
