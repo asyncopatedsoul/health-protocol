@@ -32,8 +32,7 @@
                 options: {},
             });
             // handle the response. popoutStore is specific to my app
-            console.log("SocialLogin response", response);
-            // JSON.stringify(response)
+            console.log("SocialLogin response", JSON.stringify(response, null, 2));
             const provider = response.provider;
             const loginResponse = response.result;
             const idToken = loginResponse.idToken;
@@ -46,14 +45,14 @@
                     token: idToken,
                     access_token: accessToken,
                 });
-            console.log("Supabase auth response",supabaseAuthResponse);
+            console.log("Supabase auth response",JSON.stringify(supabaseAuthResponse, null, 2));
         } catch (error) {
             console.error("Error during Google login:", error);
         }
     }
 </script>
 
-<h1>Welcome!!!</h1>
+<h1>Flowcraft</h1>
 
 <img
     src="/svelte_cap.png"

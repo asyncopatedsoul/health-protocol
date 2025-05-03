@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
 	appId: 'com.kitlab.flowcraft', // TODO: add your app id
-	appName: 'SvelteKit Capacitor',
+	appName: 'Flowcraft',
 	webDir: 'build',
 	bundledWebRuntime: false,
 	plugins: {

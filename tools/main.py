@@ -6,7 +6,7 @@ import sqlite3
 import sys
 import os
 
-from schema_utils import initialize_database
+from tools.schema_utils import initialize_database
 from data_generators.users import generate_users, insert_users
 from data_generators.metadata import (
     generate_difficulty_levels, generate_body_areas, generate_tags,
