@@ -24,6 +24,7 @@ npm install
 
 ### Run local dev server (no capacitor)
 
+https://capacitorjs.com/docs/guides/live-reload
 ```bash
 npm run dev:start
 ```
