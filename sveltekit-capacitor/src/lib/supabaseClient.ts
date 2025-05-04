@@ -8,27 +8,35 @@ console.log(PUBLIC_SUPABASE_ANON_KEY)
 
 console.log("Initializing Supabase client");
 export const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+// we still need a supabase cloud client to sign in with google
 const supabaseCloud = createClient(PUBLIC_SUPABASE_URL_CLOUD, PUBLIC_SUPABASE_ANON_KEY_CLOUD);
 
 // https://supabase.com/docs/reference/javascript/auth-onauthstatechange
-const { data } = supabase.auth.onAuthStateChange((event, session) => {
-    console.log(event, session)
-    if (event === 'INITIAL_SESSION') {
-        // handle initial session
-    } else if (event === 'SIGNED_IN') {
-        // handle sign in event
-    } else if (event === 'SIGNED_OUT') {
-        // handle sign out event
-    } else if (event === 'PASSWORD_RECOVERY') {
-        // handle password recovery event
-    } else if (event === 'TOKEN_REFRESHED') {
-        // handle token refreshed event
-    } else if (event === 'USER_UPDATED') {
-        // handle user updated event
-    }
-})
-// call unsubscribe to remove the callback
-//   data.subscription.unsubscribe()˝
+const subscribeToAuthStateChange = (supabaseClient) => {
+    const { data } = supabaseClient.auth.onAuthStateChange((event, session) => {
+        console.log(event, session)
+        if (event === 'INITIAL_SESSION') {
+            // handle initial session
+        } else if (event === 'SIGNED_IN') {
+            // handle sign in event
+        } else if (event === 'SIGNED_OUT') {
+            // handle sign out event
+        } else if (event === 'PASSWORD_RECOVERY') {
+            // handle password recovery event
+        } else if (event === 'TOKEN_REFRESHED') {
+            // handle token refreshed event
+        } else if (event === 'USER_UPDATED') {
+            // handle user updated event
+        }
+    })
+    return data
+    // call unsubscribe to remove the callback
+    //   data.subscription.unsubscribe()˝
+}
+
+subscribeToAuthStateChange(supabase)
+subscribeToAuthStateChange(supabaseCloud)
+
 
 export const initializeSocialLogin = async () => {
     console.log("Initializing Social Login");
@@ -54,8 +62,31 @@ export const handleSignInWithGoogleWeb = async (response) => {
 
     const user = await supabaseCloud.auth.getUser()
     console.log("user", user)
-    console.log("try to create account with verified Google user identity ")
-    await createAccount(data)
+
+    // create account if it doesn't exist
+    // console.log("try to create account with verified Google user identity ")
+    // await createAccount(data)
+
+    // add password to Google Oauth account
+    // retrieve all identities linked to a user
+    const { data: identities, error: identitiesError } = await supabaseCloud.auth.getUserIdentities()
+    console.log("identities", identities)
+    console.log("identitiesError", identitiesError)
+    if (!identitiesError) {
+        // find the google identity linked to the user
+        const googleIdentity = identities.identities.find((identity) => identity.provider === 'google')
+        if (googleIdentity) {
+            // unlink the google identity from the user
+            // const { data, error } = await supabase.auth.unlinkIdentity(googleIdentity)
+
+            // https://supabase.com/docs/reference/javascript/auth-updateuser
+            const { data, error } = await supabaseCloud.auth.updateUser({
+                password: 'flowcraft'
+            })
+            console.log("updateUser response", data)
+            console.log("updateUser error", error)
+        }
+    }
 }
 
 const createAccount = async (authSignInResponse) => {

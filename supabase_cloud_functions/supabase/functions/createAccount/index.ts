@@ -55,7 +55,7 @@ Deno.serve(async (req: Request) => {
 
       console.log("data", data)
       console.log("error", error)
-      if (data.data == null) {
+      if (data.length == 0) {
         // create account
         
         const newAccount = {
@@ -76,7 +76,7 @@ Deno.serve(async (req: Request) => {
         console.log("data", data)
         console.log("error", error)
 
-        return new Response(JSON.stringify({ data: data, error: error }), {
+        return new Response(JSON.stringify({ data: "Account created", error: error }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200,
         })

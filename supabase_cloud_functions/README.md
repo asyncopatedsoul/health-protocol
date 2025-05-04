@@ -23,8 +23,8 @@ supabase functions deploy [Function name] [flags] --project-ref
 
 ## Supabase Database
 
-supabase db dump -f supabase/schema.sql
-supabase db dump -f supabase/data.sql --data-only
+supabase db dump -f supabase/schema.sql -p <postgres password>
+supabase db dump -f supabase/data.sql --data-only -p <postgres password>
 
 supabase db reset --local
 
@@ -34,3 +34,9 @@ in database client:
 
 local supabase studio
 http://127.0.0.1:54323
+
+supabase db diff -f  diff_cloud_to_local
+supabase db diff -f  diff_cloud_to_local --linked
+
+supabase db push --dry-run -p <postgres password>
+supabase db push -p <postgres password>
