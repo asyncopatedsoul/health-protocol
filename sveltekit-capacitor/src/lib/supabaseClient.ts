@@ -10,6 +10,26 @@ console.log("Initializing Supabase client");
 export const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 const supabaseCloud = createClient(PUBLIC_SUPABASE_URL_CLOUD, PUBLIC_SUPABASE_ANON_KEY_CLOUD);
 
+// https://supabase.com/docs/reference/javascript/auth-onauthstatechange
+const { data } = supabase.auth.onAuthStateChange((event, session) => {
+    console.log(event, session)
+    if (event === 'INITIAL_SESSION') {
+        // handle initial session
+    } else if (event === 'SIGNED_IN') {
+        // handle sign in event
+    } else if (event === 'SIGNED_OUT') {
+        // handle sign out event
+    } else if (event === 'PASSWORD_RECOVERY') {
+        // handle password recovery event
+    } else if (event === 'TOKEN_REFRESHED') {
+        // handle token refreshed event
+    } else if (event === 'USER_UPDATED') {
+        // handle user updated event
+    }
+})
+// call unsubscribe to remove the callback
+//   data.subscription.unsubscribe()˝
+
 export const initializeSocialLogin = async () => {
     console.log("Initializing Social Login");
     SocialLogin.initialize({
@@ -26,12 +46,29 @@ export const handleSignInWithGoogleWeb = async (response) => {
     console.log("handleSignInWithGoogle");
     console.log(response);
     const { data, error } = await supabaseCloud.auth.signInWithIdToken({
-      provider: "google",
-      token: response.credential,
+        provider: "google",
+        token: response.credential,
     });
     console.log(error);
     console.log(data);
-  }
+
+    const user = await supabaseCloud.auth.getUser()
+    console.log("user", user)
+    // console.log("try to create account with verified Google user identity ")
+    // await createAccount(data)
+}
+
+const createAccount = async (authSignInResponse) => {
+    console.log("createAccount", authSignInResponse)
+    const email = authSignInResponse.user.email;
+    const id = authSignInResponse.user.id;
+    const name = authSignInResponse.user.user_metadata.name;
+    const { data, error } = await supabase.functions.invoke('createAccount', {
+        body: { email, id, name }
+    })
+    console.log("createAccount response", data)
+    console.log("createAccount error", error)
+}
 
 export const handleSignInWithGoogleMobile = async () => {
     console.log("handleSignInWithGoogle called");
