@@ -3,6 +3,7 @@ import { SocialLogin } from "@capgo/capacitor-social-login";
 import { Capacitor } from '@capacitor/core';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, PUBLIC_GOOGLE_CLIENT_ID_IOS, PUBLIC_GOOGLE_CLIENT_ID_WEB } from "$env/static/public";
 import { PUBLIC_SUPABASE_URL_CLOUD, PUBLIC_SUPABASE_ANON_KEY_CLOUD } from "$env/static/public";
+import { PUBLIC_TEST_USER_EMAIL, PUBLIC_TEST_USER_PASSWORD } from "$env/static/public";
 console.log(PUBLIC_SUPABASE_URL)
 console.log(PUBLIC_SUPABASE_ANON_KEY)
 
@@ -37,6 +38,17 @@ const subscribeToAuthStateChange = (supabaseClient) => {
 subscribeToAuthStateChange(supabase)
 subscribeToAuthStateChange(supabaseCloud)
 
+export const autoSignInPassword = async () => {
+    console.log("autoSignInPassword")
+    console.log(PUBLIC_TEST_USER_EMAIL)
+    console.log(PUBLIC_TEST_USER_PASSWORD)
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email: PUBLIC_TEST_USER_EMAIL,
+        password: PUBLIC_TEST_USER_PASSWORD
+    })
+    console.log("signInWithPassword response", data)
+    console.log("signInWithPassword error", error)
+}
 
 export const initializeSocialLogin = async () => {
     console.log("Initializing Social Login");

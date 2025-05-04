@@ -9,8 +9,10 @@
         handleSignInWithGoogleWeb,
         isNative,
         platform,
+        autoSignInPassword,
     } from "$lib/supabaseClient";
 
+    
     import { browser } from "$app/environment";
     let setGoogleSignInCallback = () => {
         console.log("setGoogleSignInCallback");
@@ -25,6 +27,8 @@
             resolve(setGoogleSignInCallback());
         }, 2000);
     });
+
+    let autoSignInGoogle = false;
 
     if (browser) {
         console.log(window.innerWidth);
@@ -51,6 +55,8 @@
             // Initialize the native-specific logic here
             initializeSocialLogin();
         }
+
+        autoSignInPassword();
     });
 </script>
 
@@ -76,7 +82,8 @@
     {#await delayedGoogleSignIn}
         Loading...
     {:then value}
-        one tap
+        {#if autoSignInGoogle}
+        auto sign in Google
         <script src="https://accounts.google.com/gsi/client" async></script>
         <div
             id="g_id_onload"
@@ -85,7 +92,11 @@
             data-callback="handleSignInWithGoogle"
             data-auto_select="true"
             data-itp_support="true"
-        ></div>
+            ></div>
+        {:else}
+        No auto sign in Google
+
+        {/if}
     {:catch error}
         <pre><code>{error}</code></pre>
     {/await}

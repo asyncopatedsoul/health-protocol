@@ -26,7 +26,7 @@ supabase functions deploy [Function name] [flags] --project-ref
 supabase db dump -f supabase/schema.sql -p <postgres password>
 supabase db dump -f supabase/data.sql --data-only -p <postgres password>
 
-supabase db reset --local
+supabase db reset --local --no-seed
 
 in database client:
 - run schema.sql
