@@ -2,11 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 import { SocialLogin } from "@capgo/capacitor-social-login";
 import { Capacitor } from '@capacitor/core';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, PUBLIC_GOOGLE_CLIENT_ID_IOS, PUBLIC_GOOGLE_CLIENT_ID_WEB } from "$env/static/public";
+import { PUBLIC_SUPABASE_URL_CLOUD, PUBLIC_SUPABASE_ANON_KEY_CLOUD } from "$env/static/public";
 console.log(PUBLIC_SUPABASE_URL)
 console.log(PUBLIC_SUPABASE_ANON_KEY)
 
 console.log("Initializing Supabase client");
 export const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+const supabaseCloud = createClient(PUBLIC_SUPABASE_URL_CLOUD, PUBLIC_SUPABASE_ANON_KEY_CLOUD);
 
 export const initializeSocialLogin = async () => {
     console.log("Initializing Social Login");
@@ -23,7 +25,7 @@ export const initializeSocialLogin = async () => {
 export const handleSignInWithGoogleWeb = async (response) => {
     console.log("handleSignInWithGoogle");
     console.log(response);
-    const { data, error } = await supabase.auth.signInWithIdToken({
+    const { data, error } = await supabaseCloud.auth.signInWithIdToken({
       provider: "google",
       token: response.credential,
     });

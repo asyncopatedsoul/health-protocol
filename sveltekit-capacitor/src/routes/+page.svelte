@@ -12,6 +12,19 @@
     } from "$lib/supabaseClient";
 
     import { browser } from "$app/environment";
+    let setGoogleSignInCallback = () => {
+        console.log("setGoogleSignInCallback");
+        if (browser) {
+            window.handleSignInWithGoogle = handleSignInWithGoogleWeb;
+            return true;
+        }
+        return false;
+    };
+    let delayedGoogleSignIn = new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(setGoogleSignInCallback());
+        }, 2000);
+    });
 
     if (browser) {
         console.log(window.innerWidth);
@@ -27,10 +40,12 @@
     // const supabase = createClient(supabaseUrl, supabaseKey);
 
     onMount(() => {
+        console.log("onMount");
         if (!isNative) {
             console.log("Web platform detected");
             // Initialize the web-specific logic here
-            window.handleSignInWithGoogle = handleSignInWithGoogleWeb;
+            console.log("handleSignInWithGoogleWeb", handleSignInWithGoogleWeb);
+            // window.handleSignInWithGoogle = handleSignInWithGoogleWeb;
         } else {
             console.log("Native platform detected");
             // Initialize the native-specific logic here
@@ -58,16 +73,22 @@
         on:click={handleSignInWithGoogleMobile}>Sign in with google</button
     >
 {:else}
-    one tap
-    <script src="https://accounts.google.com/gsi/client" async></script>
-    <div
-        id="g_id_onload"
-        data-client_id="259278640793-40shultnr3ibgg6lf5h8e3m4hpripvg9.apps.googleusercontent.com"
-        data-context="signin"
-        data-callback="handleSignInWithGoogle"
-        data-auto_select="true"
-        data-itp_support="true"
-    ></div>
+    {#await delayedGoogleSignIn}
+        Loading...
+    {:then value}
+        one tap
+        <script src="https://accounts.google.com/gsi/client" async></script>
+        <div
+            id="g_id_onload"
+            data-client_id="259278640793-40shultnr3ibgg6lf5h8e3m4hpripvg9.apps.googleusercontent.com"
+            data-context="signin"
+            data-callback="handleSignInWithGoogle"
+            data-auto_select="true"
+            data-itp_support="true"
+        ></div>
+    {:catch error}
+        <pre><code>{error}</code></pre>
+    {/await}
 {/if}
 
 <style>
