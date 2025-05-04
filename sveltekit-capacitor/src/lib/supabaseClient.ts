@@ -54,17 +54,18 @@ export const handleSignInWithGoogleWeb = async (response) => {
 
     const user = await supabaseCloud.auth.getUser()
     console.log("user", user)
-    // console.log("try to create account with verified Google user identity ")
-    // await createAccount(data)
+    console.log("try to create account with verified Google user identity ")
+    await createAccount(data)
 }
 
 const createAccount = async (authSignInResponse) => {
     console.log("createAccount", authSignInResponse)
     const email = authSignInResponse.user.email;
-    const id = authSignInResponse.user.id;
+    const authProvider = authSignInResponse.user.app_metadata.provider;
+    const authId = authSignInResponse.user.id;
     const name = authSignInResponse.user.user_metadata.name;
     const { data, error } = await supabase.functions.invoke('createAccount', {
-        body: { email, id, name }
+        body: { email, authProvider, authId, name }
     })
     console.log("createAccount response", data)
     console.log("createAccount error", error)

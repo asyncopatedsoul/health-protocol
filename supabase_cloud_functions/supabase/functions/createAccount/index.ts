@@ -8,9 +8,10 @@ import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 console.log("CreateAccount")
 
-const url = Deno.env.get('SUPABASE_URL') ?? '';
-const key = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-console.log(url, key)
+const url = Deno.env.get('PUBLIC_SUPABASE_URL') ?? '';
+const keyAnon = Deno.env.get('PUBLIC_SUPABASE_ANON_KEY') ?? '';
+const keyService = Deno.env.get('PRIVATE_SUPABASE_SERVICE_ROLE_KEY') ?? '';
+console.log(url, keyAnon, keyService)
 
 import { corsHeaders } from '../_shared/cors.ts'
 console.log(`Function "browser-with-cors" up and running!`)
@@ -29,14 +30,71 @@ console.log(`Function "browser-with-cors" up and running!`)
 
 
 Deno.serve(async (req: Request) => {
-
+  console.log("headers", req.headers)
   // This is needed if you're planning to invoke your function from a browser.
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
   try {
+
+    const supabase = createClient(
+      url,
+      keyService
+    )
+
     const requestBody = await req.json()
     console.log("requestBody", requestBody)
+
+    const targetAuthProvider = requestBody.authProvider
+    const targetAuthId = requestBody.authId
+    if (targetAuthProvider === "google") {
+      let { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('auth_google_uid', targetAuthId)
+
+      console.log("data", data)
+      console.log("error", error)
+      if (data.data == null) {
+        // create account
+        
+        const newAccount = {
+          auth_google_uid: targetAuthId,
+          email: requestBody.email,
+          name: requestBody.name,
+        }
+        console.log("newAccount", newAccount)
+
+        let { data, error } = await supabase
+          .from('accounts')
+          .insert({
+            auth_google_uid: targetAuthId,
+            email: requestBody.email,
+            name: requestBody.name,
+          })
+
+        console.log("data", data)
+        console.log("error", error)
+
+        return new Response(JSON.stringify({ data: data, error: error }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+
+      } else {
+
+        return new Response(JSON.stringify({ error: "Account already exists" }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        })
+      }
+    }
+
+    return new Response(JSON.stringify({ error: "Invalid auth provider" }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    })
+
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -44,23 +102,21 @@ Deno.serve(async (req: Request) => {
     })
   }
 
-  const supabaseClient = createClient(
-    url,
-    key
-  )
+
+
 
   // Get the session or user object
-  console.log("headers", req.headers)
-  const authHeader = req.headers.get('Authorization')!
-  const token = authHeader.replace('Bearer ', '')
-  console.log(token)
-  const { data } = await supabaseClient.auth.getUser(token)
-  console.log("data", data)
-  const user = data.user
-  return new Response(JSON.stringify({ user }), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    status: 200,
-  })
+
+  // const authHeader = req.headers.get('Authorization')!
+  // const token = authHeader.replace('Bearer ', '')
+  // console.log(token)
+  // const { data } = await supabaseClient.auth.getUser(token)
+  // console.log("data", data)
+  // const user = data.user
+  // return new Response(JSON.stringify({ user }), {
+  //   headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  //   status: 200,
+  // })
 })
 
 /* To invoke locally:
