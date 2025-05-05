@@ -20,6 +20,25 @@ export type Activity = {
   imageGuide: string;
   activityType?: string;
   complexityLevel?: number;
+  videoSource?: 'local' | 'google_drive';
+  googleDriveFileId?: string;
+}
+
+// Google Drive integration types
+export type Credentials = {
+  token: string;
+  refreshToken?: string;
+  expiresAt: number;
+  tokenType: string;
+  scope?: string;
+}
+
+export type GoogleDriveFile = {
+  id: string;
+  name: string;
+  mimeType: string;
+  webViewLink?: string;
+  webContentLink?: string;
 }
 
 export type ActivityProtocol = {
