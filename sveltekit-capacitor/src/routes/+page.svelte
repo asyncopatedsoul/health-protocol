@@ -10,7 +10,7 @@
         isNative,
         platform,
         autoSignInPassword,
-    } from "$lib/supabaseClient";
+    } from "$lib/shared/supabaseClient";
 
     
     import { browser } from "$app/environment";

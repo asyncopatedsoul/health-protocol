@@ -12,3 +12,5 @@ vite.config.ts.timestamp-*
 video
 *.pem
 /docs/private
+src-tauri/gen
+src-tauri/target

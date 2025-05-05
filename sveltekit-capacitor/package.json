@@ -40,7 +40,9 @@
     "@capgo/capacitor-data-storage-sqlite": "^6.0.59",
     "@capgo/capacitor-social-login": "^7.5.3",
     "@revenuecat/purchases-capacitor": "^10.2.3",
-    "@supabase/supabase-js": "^2.49.4"
+    "@supabase/supabase-js": "^2.49.4",
+    "overmind": "^28.0.4",
+    "overmind-svelte": "^5.0.4"
   },
   "type": "module"
 }
