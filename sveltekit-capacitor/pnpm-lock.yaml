@@ -26,6 +26,9 @@ importers:
       '@capgo/capacitor-social-login':
         specifier: ^7.5.3
         version: 7.5.3(@capacitor/core@7.2.0)
+      '@mobx-devtools/tools':
+        specifier: ^0.0.4
+        version: 0.0.4(mobx@6.13.7)
       '@revenuecat/purchases-capacitor':
         specifier: ^10.2.3
         version: 10.2.3(@capacitor/core@7.2.0)
@@ -38,6 +41,9 @@ importers:
       '@xoid/svelte':
         specifier: ^0.5.2
         version: 0.5.2(svelte@5.28.2)(xoid@1.0.0-beta.12)
+      immer:
+        specifier: ^10.1.1
+        version: 10.1.1
       mobx:
         specifier: ^6.13.7
         version: 6.13.7
@@ -55,11 +61,14 @@ importers:
         version: 5.19.2
       zustand:
         specifier: ^5.0.4
-        version: 5.0.4
+        version: 5.0.4(immer@10.1.1)
     devDependencies:
       '@capacitor/cli':
         specifier: ^7.2.0
         version: 7.2.0
+      '@redux-devtools/extension':
+        specifier: ^3.3.0
+        version: 3.3.0(redux@5.0.1)
       '@sveltejs/adapter-static':
         specifier: ^2.0.3
         version: 2.0.3(@sveltejs/kit@1.30.4(svelte@5.28.2)(vite@4.5.14(@types/node@22.15.3)))
@@ -93,6 +102,10 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
+
+  '@babel/runtime@7.27.1':
+    resolution: {integrity: sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==}
+    engines: {node: '>=6.9.0'}
 
   '@capacitor/android@7.2.0':
     resolution: {integrity: sha512-zdhEy3jZPG5Toe/pGzKtDgIiBGywjaoEuQWnGVjBYPlSAEUtAhpZ2At7V0SCb26yluAuzrAUV0Ue+LQeEtHwFQ==}
@@ -318,8 +331,18 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
+  '@mobx-devtools/tools@0.0.4':
+    resolution: {integrity: sha512-zQq8JMMqaXwWmPSxUIFhaBe/RzHoY/FV8zNyt3l2ERWTS8DN53pHrmFp5mR5byIpARXt7eHZ2mW1OCjDQz3JcA==}
+    peerDependencies:
+      mobx: '>=6.0.0'
+
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
+
+  '@redux-devtools/extension@3.3.0':
+    resolution: {integrity: sha512-X34S/rC8S/M1BIrkYD1mJ5f8vlH0BDqxXrs96cvxSBo4FhMdbhU+GUGsmNYov1xjSyLMHgo8NYrUG8bNX7525g==}
+    peerDependencies:
+      redux: ^3.1.0 || ^4.0.0 || ^5.0.0
 
   '@revenuecat/purchases-capacitor@10.2.3':
     resolution: {integrity: sha512-NLdZ9/mtRbpIvqbm1hme2W9kUkFroQbDah54YGDH3RtNAF8gFFIlGimus0Lk7wD89sEvQI6UdwHDaAJUun0X9w==}
@@ -874,6 +897,12 @@ packages:
   immediate@3.0.6:
     resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
 
+  immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
+
+  immutable@4.3.7:
+    resolution: {integrity: sha512-1hqclzwYwjRDFLjcFxOM5AYkkG0rpFPpr1RLPMEuGczoS7YA8gLhy8SWXYRAA/XwfEHpfo3cw5JGioS32fnMRw==}
+
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
     deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
@@ -1289,6 +1318,9 @@ packages:
   readdirp@3.6.0:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
+
+  redux@5.0.1:
+    resolution: {integrity: sha512-M9/ELqF6fy8FwmkpnF0S3YKOqMyoWJ4+CS5Efg2ct3oY9daQvd/Pc71FpGZsVsbl3Cpb+IIcjBDUnnyBdQbq4w==}
 
   reflect.getprototypeof@1.0.10:
     resolution: {integrity: sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==}
@@ -1802,6 +1834,8 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
+  '@babel/runtime@7.27.1': {}
+
   '@capacitor/android@7.2.0(@capacitor/core@7.2.0)':
     dependencies:
       '@capacitor/core': 7.2.0
@@ -2019,7 +2053,17 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
+  '@mobx-devtools/tools@0.0.4(mobx@6.13.7)':
+    dependencies:
+      mobx: 6.13.7
+
   '@polka/url@1.0.0-next.29': {}
+
+  '@redux-devtools/extension@3.3.0(redux@5.0.1)':
+    dependencies:
+      '@babel/runtime': 7.27.1
+      immutable: 4.3.7
+      redux: 5.0.1
 
   '@revenuecat/purchases-capacitor@10.2.3(@capacitor/core@7.2.0)':
     dependencies:
@@ -2682,6 +2726,10 @@ snapshots:
 
   immediate@3.0.6: {}
 
+  immer@10.1.1: {}
+
+  immutable@4.3.7: {}
+
   inflight@1.0.6:
     dependencies:
       once: 1.4.0
@@ -3106,6 +3154,8 @@ snapshots:
   readdirp@3.6.0:
     dependencies:
       picomatch: 2.3.1
+
+  redux@5.0.1: {}
 
   reflect.getprototypeof@1.0.10:
     dependencies:
@@ -3658,4 +3708,6 @@ snapshots:
 
   zimmerframe@1.1.2: {}
 
-  zustand@5.0.4: {}
+  zustand@5.0.4(immer@10.1.1):
+    optionalDependencies:
+      immer: 10.1.1

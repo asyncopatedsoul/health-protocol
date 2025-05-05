@@ -48,17 +48,32 @@
   // console.log(alpha)
   // $: alpha = useAtom(store.focus('alpha'))
 
-  import { rootStore } from "$lib/shared/stores";
+  import { rootStore, zustandCount, transactionStore } from "$lib/shared/stores";
   let mobxCount = rootStore.reactiveStores.mobxCount;
   let todos = rootStore.reactiveStores.todo;
 
+  zustandCount.subscribe((value) => {
+    console.log(value);
+  });
   mobxCount.subscribe((value) => {
     console.log(value);
   });
-
+  // https://zustand.docs.pmnd.rs/apis/create-store
 </script>
 
 <h1>Store Debug</h1>
+
+<h2>Zustand Store</h2>
+<button class="btn btn-secondary" on:click = {() => {
+  zustandCount.getState().increment()
+  // console.log(zustandCount)
+}}>
+Zustand Count is: { $zustandCount.count }
+</button>
+
+{#each transactionStore.getState().transactions as transaction}
+<p>{transaction.id}: {transaction.amount}</p>
+{/each}
 
 <h2>Mobx Store</h2>
 <button class="btn btn-secondary" on:click = {() => mobxCount.count++}>

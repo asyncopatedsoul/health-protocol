@@ -1,5 +1,6 @@
 import { makeAutoObservable, autorun, runInAction, reaction } from 'mobx';
 import { createMachine, assign, createActor } from 'xstate';
+import { injectStores } from '@mobx-devtools/tools';
 
 // https://stately.ai/docs/xstate#create-a-more-complex-machine
 const countMachine = createMachine({
@@ -72,8 +73,15 @@ class RootStore {
 	reactiveStores
 
 	constructor() {
-			this.accountStore = new AccountStore(this)
-			this.todoStore = new TodoStore(this)
+		const accountStore = new AccountStore(this);
+		const todoStore = new TodoStore(this)
+			this.accountStore = accountStore
+			this.todoStore = todoStore
+
+			injectStores({
+				accountStore,
+				todoStore
+			});
 
 			this.reactiveStores = {
 				// account: reactiveStore(this.accountStore),
