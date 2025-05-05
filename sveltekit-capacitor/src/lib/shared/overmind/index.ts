@@ -7,9 +7,11 @@ const overmind = {
   },
   actions: {
     increase({ state }) {
+      console.log('increase', state);
       state.count++;
     },
     decrease({ state }) {
+      console.log('decrease', state);
       state.count--;
     }
   }
@@ -17,6 +19,6 @@ const overmind = {
 
 const store = createMixin(createOvermind(overmind))
 
-export const state = store.state
+export const ostate = store.state
 export const actions = store.actions
-export const reaction = store.reaction
+// export const reaction = store.reaction

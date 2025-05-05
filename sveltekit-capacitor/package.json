@@ -1,6 +1,7 @@
 {
   "name": "sveltekit_capacitor",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "#Build: Core": "Thesee scripts build the core application (routing logic, and views)",
     "build:app": "vite build",
@@ -27,7 +28,7 @@
     "cordova-res": "^0.15.4",
     "cross-env": "^7.0.3",
     "npm-run-all": "^4.1.5",
-    "svelte": "^4.2.19",
+    "svelte": "^5.28.2",
     "svelte-check": "^3.8.6",
     "typescript": "^5.8.3",
     "vite": "^4.5.14"
@@ -41,8 +42,13 @@
     "@capgo/capacitor-social-login": "^7.5.3",
     "@revenuecat/purchases-capacitor": "^10.2.3",
     "@supabase/supabase-js": "^2.49.4",
+    "@xoid/devtools": "^0.7.0",
+    "@xoid/svelte": "^0.5.2",
+    "mobx": "^6.13.7",
     "overmind": "^28.0.4",
-    "overmind-svelte": "^5.0.4"
-  },
-  "type": "module"
+    "overmind-svelte": "^5.0.4",
+    "xoid": "1.0.0-beta.12",
+    "xstate": "^5.19.2",
+    "zustand": "^5.0.4"
+  }
 }
