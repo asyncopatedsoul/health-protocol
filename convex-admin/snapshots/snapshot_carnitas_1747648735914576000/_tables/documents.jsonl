@@ -1,0 +1,13 @@
+{"name":"messages","id":10001}
+{"name":"tasks","id":10002}
+{"name":"preferences","id":10003}
+{"name":"users","id":10004}
+{"name":"accounts","id":10005}
+{"name":"activities","id":10006}
+{"name":"activity_protocols","id":10007}
+{"name":"guides","id":10008}
+{"name":"media","id":10009}
+{"name":"protocols","id":10010}
+{"name":"profiles","id":10011}
+{"name":"events","id":10012}
+{"name":"notes","id":10013}

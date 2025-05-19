@@ -1,0 +1,17 @@
+{
+  "name": "convex-admin",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "convex": "^1.24.1",
+    "dotenv": "^16.5.0"
+  }
+}
