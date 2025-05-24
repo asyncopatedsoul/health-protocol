@@ -12,7 +12,7 @@ activity sequence
                     "daily": 1
                 }, 
                 "target": {
-                    "reps": 2
+                    "reps": 4
                 }
             }
         ],

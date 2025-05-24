@@ -7,6 +7,7 @@ export default defineSchema({
     email: v.string(),
     fullName: v.string(),
     preferencesId: v.optional(v.id("preferences")),
+    tokenId: v.string(),
   }),
   preferences: defineTable({
     userId: v.union(v.id("users"), v.null()),
