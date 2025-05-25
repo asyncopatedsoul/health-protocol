@@ -81,8 +81,8 @@ export const clearAllTestUser = testingMutation({
         if (testUser) {
             const userId = testUser._id;
             const protocols = await db.query("user_protocols").filter((q) => q.eq(q.field("userId"), userId)).collect();
-            // const protocols = await db.query("protocol_activities").filter((q) => q.eq(q.field("userId"), userId)).collect();
-            let userDocs = [...protocols];
+            const plannedActivities = await db.query("planned_activities").filter((q) => q.eq(q.field("userId"), userId)).collect();
+            let userDocs = [...protocols, ...plannedActivities];
             await Promise.all(userDocs.map((doc) => db.delete(doc._id)));
         }
     }

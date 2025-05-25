@@ -12,6 +12,8 @@
   "type": "module",
   "dependencies": {
     "convex": "^1.24.1",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "dotenv": "^16.5.0"
   },
   "devDependencies": {

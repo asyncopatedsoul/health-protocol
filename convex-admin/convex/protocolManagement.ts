@@ -122,6 +122,20 @@ export const addActivityToProtocol = mutation({
   },
 });
 
+export const getProgram = query({
+  args: { name: v.string() },
+  handler: async ({ db }, args) => {
+    const program = await db
+      .query("programs")
+      .filter((q) => q.eq(q.field("name"), args.name))
+      .first();
+    if (!program) {
+      throw new Error(`Program with name ${args.name} not found`);
+    }
+    return program;
+  },
+});
+
 
 // export const joinTableExample = query({
 //   args: { userId: v.id("users"), sid: v.id("_storage") },
