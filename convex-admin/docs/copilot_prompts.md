@@ -19,3 +19,13 @@ the plannedTimeUtcMs should be calculated using the user's timezone or default t
 the function should return the list of planned activities records created.
 
 lastly, update the tests in convex/tests/protocol.test.ts to test the new function using the test user from sample_data/users.jsonl and the first program with phases defined from sample_data/programs.jsonl
+
+#
+let's extend the api function planActivitiesForUserProgram to accept durationDays as an optional argument to determine the number of days to plan activities for. the default durationDays should be 30 days.
+also add an optional argument for startDate to determine the start date to plan the activities instead of the default as today.
+also detect if the program.phases[index].sequence[index].day is defined and use it to determine the day from the start date to plan the activity.
+if the program.phases[index].sequence[index].day or program.phases[index].sequence[index].weekday is not defined, throw an error
+also update the tests in convex/tests/protocol.test.ts to test the new function using the test user from sample_data/users.jsonl and the first program with program.phases[index].sequence[index].day defined from sample_data/programs.jsonl
+also create a logger during execution of api functions that writes all console.log() to ./logs/api_function.log
+lastly, create a summary function in convex/testFunctions.ts that returns a summary of all the planned activities in chronological order with user slug, user id, user fullName, activity name, activity id, program name, program id, and planned time in date format YYYY-MM-DD HH:MM:SS for a user added to a program and writes the summary to ./logs/summary.log.
+the summary also includes the input parameters to the function planActivitiesForUserProgram

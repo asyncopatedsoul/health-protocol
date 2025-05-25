@@ -20,8 +20,8 @@ describe("testingExample", () => {
     });
 
     afterAll(async () => {
-        // await t.mutation(api.testFunctions.clearAllTestUser, { isTest: true });
-        // await t.close();
+        await t.mutation(api.testFunctions.clearAllTestUser, { isTest: true });
+        await t.close();
     });
 
     test('adds 1 + 2 to equal 3', () => {
@@ -64,7 +64,7 @@ describe("testingExample", () => {
         const plannedActivities = await t.mutation(api.userHistory.planActivitiesForUserProgram, {
             userId: user._id,
             programId: program._id,
-            durationWeeks: 2 // Plan for 2 weeks instead of default 4
+            durationWeeks: 4
         });
         
         // Verify planned activities were created
