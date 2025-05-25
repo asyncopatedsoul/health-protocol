@@ -124,18 +124,53 @@ export const addActivityToProtocol = mutation({
 
 export const getProgram = query({
   args: { name: v.string() },
+  returns: v.object({
+    _id: v.id("programs"),
+    _creationTime: v.number(),
+    name: v.string(),
+    authorId: v.optional(v.id("users")),
+    userId: v.optional(v.id("users")),
+    phases: v.optional(v.array(
+      v.object({
+        name: v.string(),
+        exitCriteria: v.array(
+          v.object({
+            slug: v.string(),
+            limit: v.optional(v.object({
+              daily: v.number()
+            })),
+            target: v.optional(v.object({
+              total: v.number()
+            }))
+          })
+        ),
+        sequence: v.array(
+          v.object({
+            weekday: v.optional(v.number()),
+            day: v.optional(v.number()),
+            activities: v.array(
+              v.object({
+                slug: v.string()
+              })
+            )
+          })
+        )
+      })
+    ))
+  }),
   handler: async ({ db }, args) => {
     const program = await db
       .query("programs")
       .filter((q) => q.eq(q.field("name"), args.name))
       .first();
+      
     if (!program) {
-      throw new Error(`Program with name ${args.name} not found`);
+      throw new Error(`Program with name '${args.name}' not found`);
     }
+    
     return program;
   },
 });
-
 
 // export const joinTableExample = query({
 //   args: { userId: v.id("users"), sid: v.id("_storage") },
