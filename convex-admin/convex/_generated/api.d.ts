@@ -13,8 +13,10 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as relationshipsExample from "../relationshipsExample.js";
+import type * as protocolManagement from "../protocolManagement.js";
 import type * as sum from "../sum.js";
+import type * as testFunctions from "../testFunctions.js";
+import type * as userHistory from "../userHistory.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -25,8 +27,10 @@ import type * as sum from "../sum.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  relationshipsExample: typeof relationshipsExample;
+  protocolManagement: typeof protocolManagement;
   sum: typeof sum;
+  testFunctions: typeof testFunctions;
+  userHistory: typeof userHistory;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

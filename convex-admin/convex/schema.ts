@@ -8,6 +8,7 @@ export default defineSchema({
     fullName: v.string(),
     preferencesId: v.optional(v.id("preferences")),
     tokenId: v.string(),
+    timezone: v.optional(v.string()), // e.g., 'America/Los_Angeles', 'Europe/London'
   }),
   preferences: defineTable({
     userId: v.union(v.id("users"), v.null()),
@@ -67,13 +68,54 @@ export default defineSchema({
   protocol_activities: defineTable({
     activityId: v.id("activities"),
     protocolId: v.id("protocols"),
-    parameters: v.object({
+    parameters: v.optional(v.object({
       property: v.string(),
-    }),
+    })),
   }).index("activityId", ["activityId"]).index("protocolId", ["protocolId"]),
+  planned_activities: defineTable({
+    userId: v.id("users"),
+    activityId: v.id("activities"),
+    protocolId: v.optional(v.id("protocols")),
+    programId: v.optional(v.id("programs")),
+    parameters: v.optional(v.object({
+      property: v.string(),
+    })),
+    // Store as milliseconds since epoch (UTC)
+    plannedTimeUtcMs: v.number(),
+  }).index("activityId", ["activityId"]).index("protocolId", ["protocolId"]).index("programId", ["programId"]),
+  programs: defineTable({
+    name: v.string(),
+    userId: v.id("users"),
+    authorId: v.id("users"),
+    phases: v.optional(v.array(v.object({
+      name: v.string(),
+      exitCriteria: v.array(v.object({
+        slug: v.string(),
+        limit: v.object({
+          daily: v.number(),
+        }),
+        target: v.object({
+          total: v.optional(v.number()),
+          daily: v.optional(v.number()),
+        }),
+      })),
+      sequence: v.array(v.object({
+        day: v.optional(v.number()),
+        weekday: v.optional(v.number()),
+        activities: v.array(v.object({
+          slug: v.string(),
+        })),
+      })),
+    }))),
+  }).index("userId", ["userId"]),
   events: defineTable({
     type: v.string(),
+    status: v.string(),
     userId: v.optional(v.id("users")),
+    context: v.optional(v.object({
+      activityId: v.optional(v.id("activities")),
+      protocolId: v.optional(v.id("protocols")),
+    })),
   }).index("userId", ["userId"]),
   notes: defineTable({
     userId: v.optional(v.id("users")),
