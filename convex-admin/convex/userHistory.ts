@@ -92,7 +92,7 @@ export const planActivitiesForUserProgram = mutation({
             userId: Id<"users">,
             activityId: Id<"activities">,
             protocolId?: Id<"protocols">,
-            programId: Id<"programs">,
+            programId?: Id<"programs">,
             plannedTimeUtcMs: number,
             _creationTime: number,
             parameters?: { property: string }
@@ -124,7 +124,7 @@ export const planActivitiesForUserProgram = mutation({
                     .filter((q) => q.eq(q.field("slug"), criteria.slug))
                     .collect();
                 
-                if (activities.length > 0) {
+                if (activities.length > 0) {    
                     const activity = activities[0];
                     
                     // Store the activity with its target and limit info

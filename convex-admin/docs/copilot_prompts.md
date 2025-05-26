@@ -29,3 +29,16 @@ also update the tests in convex/tests/protocol.test.ts to test the new function 
 also create a logger during execution of api functions that writes all console.log() to ./logs/api_function.log
 lastly, create a summary function in convex/testFunctions.ts that returns a summary of all the planned activities in chronological order with user slug, user id, user fullName, activity name, activity id, program name, program id, and planned time in date format YYYY-MM-DD HH:MM:SS for a user added to a program and writes the summary to ./logs/summary.log.
 the summary also includes the input parameters to the function planActivitiesForUserProgram
+
+#
+let's create new api functions fetch remote user activity and save snapshots of the user activity to the database.
+the api functions should be named fetchRemoteUserActivity and saveRemoteUserActivitySnapshot.
+the functions should be defined in convex/remoteSourceSupabase.ts
+the remote data sources should be decoupled from the api functions. the initial remote data source should be supabase and a supabase client should be defined in convex/remoteSourceSupabase.ts.
+in function fetchRemoteUserActivity, accepts arguments for supabase client instance and table name to fetch the user activity from. 
+by default for supabase data source, the associated user records should be fetched from the supabase autheentication built-in users table.
+for example, user activity as is stored as text strings of exercises performed in a 'notes' table in supabase.
+with all the user activity records fetched with fetchRemoteUserActivity, the function saveRemoteUserActivitySnapshot should create a snapshot of the user activity as a csv file per unique user referenced in the user activity records and mapped to the user records fetched from the supabase authentication built-in users table.
+the csv file should be named as <user_id>_<timestamp>.csv and saved to ./logs/user_activity_snapshots.
+then the function saveRemoteUserActivitySnapshot uploads the csv files to a supabase storage bucket with the same supabase client instance.
+the function saveRemoteUserActivitySnapshot accepts arguments for supabase client instance and the storage bucket name to upload the csv files to.
