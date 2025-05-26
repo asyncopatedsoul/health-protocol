@@ -18,7 +18,8 @@ export default defineSchema({
     preferencesId: v.optional(v.id("preferences")),
     tokenId: v.string(),
     timezone: v.optional(v.string()), // e.g., 'America/Los_Angeles', 'Europe/London'
-  }),
+    supabaseUserId: v.optional(v.string()),
+  }).index("by_email", ["email"]).index("by_supabaseUserId", ["supabaseUserId"]),
   preferences: defineTable({
     userId: v.union(v.id("users"), v.null()),
   }),
@@ -128,7 +129,9 @@ export default defineSchema({
   }).index("userId", ["userId"]),
   notes: defineTable({
     userId: v.optional(v.id("users")),
-    createdAtMs: v.int64(),
+    createdAtMs: v.optional(v.int64()),
+    lastSavedMs: v.optional(v.int64()),
     content: v.string(),
+    source: v.optional(v.string()),
   }).index("userId", ["userId"]),
 });

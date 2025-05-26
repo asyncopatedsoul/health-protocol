@@ -48,3 +48,11 @@ we need to refactor the api functions in remoteSourceSupabase.ts by moving all t
 remoteSourceSupabase.ts should only create the supabase client instance, call supabase functions to fetch the user activity records and write to supabase storage, and call the convex internal actions or mutations that read and write to convex database and storage.
 remoteSourceSupabase.ts should call the convex internal actions or mutations defined in remoteUserActivity.ts file like "ctx.runMutation(internal.mutationName)" or "ctx.runQuery(internal.queryName)" or "ctx.runAction(internal.actionName)".
 functions in remoteUserActivity.ts should not create a supabase client instance and should only contain the convex internal actions or mutations that read and write to convex database and storage.
+
+#
+let's extend the api function fetchRemoteUserActivity to create new users in convex database from supabase authentication built-in users and create notes records in convex database from the user activity records fetched from 'notes' table in supabase. create new functions as needed in convex/remoteUserActivity.ts to maintain separation of concerns between supabase client functions and convex internal actions or mutations that read and write to convex database and storage.
+for the new user records, set the email, fullName, supabaseUserId from the corresponding fields in the supabase user record. for the tokenId field, set it to a random string of 8 characters. for the timezone field, set it to 'America/Los_Angeles'.
+also save the fetched supabase users to a jsonl file in ./logs/supabase_users.jsonl.
+for the notes records, set the userId from the new user record associated with the supabase notes content. for the createdAtMs field, set it to the corresponding field in the supabase notes record. for the lastSavedMs field, set it to the corresponding field in the supabase notes record. for the content field, set it to the corresponding field in the supabase notes record. for the source field, set it to 'supabase'.
+also save the fetched supabase notes records with newline escaped content to a jsonl file in ./logs/supabase_notes.jsonl.
+finally, update tests in convex/tests/supabase.test.ts to test all new or updated functions.
