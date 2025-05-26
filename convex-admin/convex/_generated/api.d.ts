@@ -14,6 +14,8 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as protocolManagement from "../protocolManagement.js";
+import type * as remoteSourceSupabase from "../remoteSourceSupabase.js";
+import type * as remoteUserActivity from "../remoteUserActivity.js";
 import type * as sum from "../sum.js";
 import type * as testFunctions from "../testFunctions.js";
 import type * as userHistory from "../userHistory.js";
@@ -28,6 +30,8 @@ import type * as userHistory from "../userHistory.js";
  */
 declare const fullApi: ApiFromModules<{
   protocolManagement: typeof protocolManagement;
+  remoteSourceSupabase: typeof remoteSourceSupabase;
+  remoteUserActivity: typeof remoteUserActivity;
   sum: typeof sum;
   testFunctions: typeof testFunctions;
   userHistory: typeof userHistory;

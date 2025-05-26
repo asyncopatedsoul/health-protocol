@@ -2,6 +2,15 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  // Table for storing user activity snapshots from Supabase
+  user_activity_snapshots: defineTable({
+    userId: v.string(),
+    fileName: v.string(),
+    storageId: v.string(),
+    recordCount: v.number(),
+    uploadedToSupabase: v.boolean(),
+    createdAt: v.number()
+  }).index("by_userId", ["userId"]).index("by_createdAt", ["createdAt"]),
   users: defineTable({
     // id: v.id("users"),
     email: v.string(),

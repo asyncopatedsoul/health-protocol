@@ -42,3 +42,9 @@ with all the user activity records fetched with fetchRemoteUserActivity, the fun
 the csv file should be named as <user_id>_<timestamp>.csv and saved to ./logs/user_activity_snapshots.
 then the function saveRemoteUserActivitySnapshot uploads the csv files to a supabase storage bucket with the same supabase client instance.
 the function saveRemoteUserActivitySnapshot accepts arguments for supabase client instance and the storage bucket name to upload the csv files to.
+
+##
+we need to refactor the api functions in remoteSourceSupabase.ts by moving all the convex internal actions and mutations to a separate file in convex/remoteUserActivity.ts.
+remoteSourceSupabase.ts should only create the supabase client instance, call supabase functions to fetch the user activity records and write to supabase storage, and call the convex internal actions or mutations that read and write to convex database and storage.
+remoteSourceSupabase.ts should call the convex internal actions or mutations defined in remoteUserActivity.ts file like "ctx.runMutation(internal.mutationName)" or "ctx.runQuery(internal.queryName)" or "ctx.runAction(internal.actionName)".
+functions in remoteUserActivity.ts should not create a supabase client instance and should only contain the convex internal actions or mutations that read and write to convex database and storage.
