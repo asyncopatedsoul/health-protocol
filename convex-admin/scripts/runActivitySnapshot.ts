@@ -19,6 +19,24 @@ function serializeBigInt(key: string, value: any): any {
     return value;
 }
 
+function serializeBigIntForJson(key: string, value: any): any {
+    if (typeof value === 'bigint') {
+        // Convert BigInt to its string representation, then remove the 'n'
+        // This assumes the BigInt string format is always just the number followed by 'n'
+        return value.toString().slice(0, -1);
+    }
+    return value;
+}
+
+// Or simply:
+function serializeBigIntClean(key: string, value: any): any {
+    if (typeof value === 'bigint') {
+        // You could also parse it as a string from the start if it came from a database
+        // that returned it as a string, or explicitly convert it if it's an actual BigInt.
+        return `${value}`; // Template literal conversion also removes the 'n' for serialization
+    }
+    return value;
+}
 
 async function main() {
     // Check for required environment variables
@@ -75,7 +93,7 @@ async function main() {
         // Write results to log file
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const logFile = path.join(logsDir, `snapshot_${timestamp}.log`);
-        fs.writeFileSync(logFile, JSON.stringify(result, serializeBigInt, 2));
+        fs.writeFileSync(logFile, JSON.stringify(result, serializeBigIntClean, 2));
         console.log(`📝 Results saved to ${logFile}`);
     } catch (error) {
         console.error('❌ Error running activity snapshot:', error);

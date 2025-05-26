@@ -119,13 +119,16 @@ export default defineSchema({
     }))),
   }).index("userId", ["userId"]),
   events: defineTable({
+    userId: v.id("users"),
     type: v.string(),
     status: v.string(),
-    userId: v.optional(v.id("users")),
     context: v.optional(v.object({
       activityId: v.optional(v.id("activities")),
       protocolId: v.optional(v.id("protocols")),
+      noteId: v.optional(v.id("notes")),
+      programId: v.optional(v.id("programs")),
     })),
+    metadata: v.optional(v.object({})),
   }).index("userId", ["userId"]),
   notes: defineTable({
     userId: v.optional(v.id("users")),
@@ -133,5 +136,6 @@ export default defineSchema({
     lastSavedMs: v.optional(v.int64()),
     content: v.string(),
     source: v.optional(v.string()),
+    externalId: v.optional(v.string()),
   }).index("userId", ["userId"]),
 });

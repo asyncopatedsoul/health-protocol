@@ -263,7 +263,8 @@ export const createNoteFromActivity = internalMutation({
         content,
         createdAtMs,
         lastSavedMs,
-        source: 'supabase'
+        source: 'supabase',
+        externalId: activity.id
       });
       
       return await db.get(noteId);
