@@ -13,6 +13,8 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as fuzzySearchExternal from "../fuzzySearchExternal.js";
+import type * as fuzzySearchInternal from "../fuzzySearchInternal.js";
 import type * as protocolManagement from "../protocolManagement.js";
 import type * as remoteSourceSupabase from "../remoteSourceSupabase.js";
 import type * as remoteUserActivity from "../remoteUserActivity.js";
@@ -29,6 +31,8 @@ import type * as userHistory from "../userHistory.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  fuzzySearchExternal: typeof fuzzySearchExternal;
+  fuzzySearchInternal: typeof fuzzySearchInternal;
   protocolManagement: typeof protocolManagement;
   remoteSourceSupabase: typeof remoteSourceSupabase;
   remoteUserActivity: typeof remoteUserActivity;

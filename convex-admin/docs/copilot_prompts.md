@@ -62,6 +62,15 @@ let's create a process to convert notes to events referencing activities in conv
 ...
 
 #
+let's create a script that will setup a fuzzy search service for activities in convex database. the script should be named fuzzySearchExternal.ts and should be defined in convex/fuzzySearchExternal.ts. this script will expose actions using external libraries so must 'use node;' at the top of the file like remoteSourceSupabase.ts. Create any queries or mutations for this service in convex/fuzzySearchInternal.ts that does not have 'use node;' to separate the fuzzy search service from convex database functions.
+the fuzzy search service is implemented using the library 'meilisearch', but the script should be decoupled from this implementation library to allow for easy replacement of the library in the future.
+create a function to check if the fuzzy search service is available and return true if it is available and false if it is not available.
+create a function to start the fuzzy search service at a specified port (ex. 7700) and binary path (ex. '/Users/michael.garrido/Documents/GitHub/convex-backend/meilisearch') if not available and a function to stop the fuzzy search service if available.
+create a function to create a fuzzy search index for activities in convex database, save it to a jsonl file in ./logs/fuzzySearchActivities.jsonl, and seed the fuzzy search index with activities in convex database.
+create a function to add activities to the fuzzy search index, a function to remove activities from the fuzzy search index, and a function to search for activities in the fuzzy search index with the options {showRankingScore: true, limit: 10}
+finally create tests for the fuzzy search service in convex/tests/fuzzySearch.test.ts
+
+#
 let's create utility functions to parse the content of a note to extract the unique activities performed in the note. 
 
 the first major function should accept a note content as an argument and return an array of objects as unique activities performed + activitiy metadata in the note.
@@ -102,15 +111,13 @@ since the note content can have a general structure for activities and varying f
 - intepret raw activity metadata to standard parameters as 'metadataParsed'
 it is OK to return empty 'metadataParsed' if the raw metadata cannot be interpreted to standard parameters
 
-the second major function should accept a parsed activity object and determine if the activity 'nameRaw' matches an existing activity in convex database. if the activity 'nameRaw' matches an existing activity in convex database, return the activity record. if the activity 'nameRaw' does not match an existing activity in convex database, create a new activity record in convex database and return the new activity record. for matching the activity 'nameRaw' to an existing activity in convex database, use the parsed activity 'nameRaw' field to fuzzy match on an existing activity 'name'. use the library 
+the second major function should accept a parsed activity object and determine if the activity 'nameRaw' matches an existing activity in convex database. use the fuzzySearchExternal action to fuzzy match with a minimum rankingScore of 0.7. for matching the activity 'nameRaw' to an existing activity in convex database, use the parsed activity 'nameRaw' field to fuzzy match on an existing activity 'name'. if the activity 'nameRaw' fuzzy matches an existing activity in convex database, return the activity record. if the activity 'nameRaw' does not fuzzy match an existing activity in convex database, create a new activity record in convex database and return the new activity record. 
 
-the note may contain activities that are not in the convex database. for activities not in the convex database, create a new activity record in convex database and use it to create the event record.
+the third major function accepts the parsed activity object and the matched or new activity record as arguments and creates an event record in convex database for the activity. the event record should have the following fields:
+- userId
+- type: "activity"
+- status: "imported"
+- context: { activityId: <activityId> }
+- metadata: { activity: <activityRecord>, note: <noteRecord> }
 
-#
-let's create a script that will setup a fuzzy search service for activities in convex database. the script should be named fuzzySearch.ts and should be defined in convex/fuzzySearch.ts. this script will expose actions using external libraries so must 'use node;' at the top of the file like remoteSourceSupabase.ts.
-the fuzzy search service is implemented using the library 'meilisearch', but the script should be decoupled from this implementation library to allow for easy replacement of the library in the future.
-create a function to check if the fuzzy search service is available and return true if it is available and false if it is not available.
-create a function to start the fuzzy search service if not available and a function to stop the fuzzy search service if available.
-create a function to create a fuzzy search index for activities in convex database, save it to a jsonl file in ./logs/fuzzySearchActivities.jsonl, and seed the fuzzy search index with activities in convex database.
-create a function to add activities to the fuzzy search index, a function to remove activities from the fuzzy search index, and a function to search for activities in the fuzzy search index with the options {showRankingScore: true, limit: 10}
-finally create tests for the fuzzy search service in convex/tests/fuzzySearch.test.ts
+finally, update tests in convex/tests/fuzzySearch.test.ts to test all new or updated functions.

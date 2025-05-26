@@ -4,7 +4,12 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
-    "snapshot:activity": "tsx scripts/runActivitySnapshot.ts"
+    "snapshot:activity": "tsx scripts/runActivitySnapshot.ts",
+    "fuzzy:status": "tsx scripts/runFuzzySearchService.ts status",
+    "fuzzy:start": "tsx scripts/runFuzzySearchService.ts start",
+    "fuzzy:stop": "tsx scripts/runFuzzySearchService.ts stop",
+    "fuzzy:seed": "tsx scripts/runFuzzySearchService.ts seed",
+    "fuzzy:search": "tsx scripts/runFuzzySearchService.ts search"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +22,7 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^16.5.0",
+    "meilisearch": "^0.50.0",
     "tsx": "^4.19.4",
     "uuid": "^11.1.0"
   },

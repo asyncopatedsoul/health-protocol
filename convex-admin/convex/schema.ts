@@ -128,7 +128,13 @@ export default defineSchema({
       noteId: v.optional(v.id("notes")),
       programId: v.optional(v.id("programs")),
     })),
-    metadata: v.optional(v.object({})),
+    metadata: v.optional(v.object({
+      activity: v.optional(v.any()),
+      note: v.optional(v.any()),
+      program: v.optional(v.any()),
+      protocol: v.optional(v.any()),
+      user: v.optional(v.any()),
+    })),
   }).index("userId", ["userId"]),
   notes: defineTable({
     userId: v.optional(v.id("users")),
