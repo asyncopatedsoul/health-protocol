@@ -1,4 +1,8 @@
 "use node"
+// libraries only available in node runtime
+import fs from 'fs';
+import path from 'path';
+import { randomBytes } from 'crypto';
 
 import { createClient } from '@supabase/supabase-js';
 import { v } from 'convex/values';
@@ -6,7 +10,6 @@ import { action } from './_generated/server';
 import { internal } from './_generated/api';
 import { Id } from './_generated/dataModel';
 import { UserActivity, SupabaseUser, SNAPSHOTS_TABLE } from './remoteUserActivity';
-
 // Types and constants are now imported from remoteUserActivity.ts
 
 // Initialize Supabase client
@@ -166,17 +169,36 @@ export const saveRemoteUserActivitySnapshot = async (
 // Convex API functions
 export const fetchUserActivity = action({
   args: {
-    tableName: v.optional(v.string())
+    tableName: v.optional(v.string()),
+    createConvexRecords: v.optional(v.boolean())
   },
   handler: async (ctx, args) => {
-    return await fetchRemoteUserActivity(createSupabaseClient(), args.tableName);
+    const supabase = createSupabaseClient();
+    const result = await fetchRemoteUserActivity(supabase, args.tableName);
+    
+    // If createConvexRecords is true, create users and notes in Convex database
+    if (args.createConvexRecords) {
+      console.log('Creating Convex records from Supabase data...');
+      const processResult = await ctx.runAction(internal.remoteUserActivity.processSupabaseData, {
+        activities: result.activities,
+        users: result.users
+      });
+      
+      return {
+        ...result,
+        convexRecords: processResult
+      };
+    }
+    
+    return result;
   }
 });
 
 export const createActivitySnapshot = action({
   args: {
     tableName: v.optional(v.string()),
-    bucketName: v.optional(v.string())
+    bucketName: v.optional(v.string()),
+    createConvexRecords: v.optional(v.boolean())
   },
   handler: async (ctx, args) => {
     try {
@@ -196,14 +218,30 @@ export const createActivitySnapshot = action({
       
       console.log(`Found ${activities.length} activities for ${Object.keys(users).length} users`);
       
+      // Create Convex records if requested
+      let convexRecords = null;
+      if (args.createConvexRecords) {
+        console.log('Creating Convex records from Supabase data...');
+        convexRecords = await ctx.runAction(internal.remoteUserActivity.processSupabaseData, {
+          activities,
+          users
+        });
+        console.log(`Created ${convexRecords.users.length} users and ${convexRecords.notes.length} notes in Convex`);
+      }
+      
       // Save snapshots and upload to Supabase
-      return await saveRemoteUserActivitySnapshot(
+      const snapshotResult = await saveRemoteUserActivitySnapshot(
         ctx,
         supabase, 
         activities, 
         users, 
         args.bucketName
       );
+      
+      return {
+        ...snapshotResult,
+        convexRecords: convexRecords || { users: [], notes: [] }
+      };
     } catch (error) {
       console.error('Error creating activity snapshot:', error);
       throw error;
@@ -248,5 +286,69 @@ export const listSnapshots = action({
       userId: args.userId,
       limit: args.limit
     });
+  }
+});
+
+// Generate a random token ID
+export const generateTokenId = action({
+    handler: async (ctx, args) => {
+        return randomBytes(4).toString('hex');
+    }
+});
+
+// Save Supabase users to a JSONL file
+export const saveSupabaseUsersToFile = action({
+  args: {
+    users: v.array(v.any())
+  },
+  handler: async (ctx, args) => {
+    const { users } = args;
+    
+    // Create logs directory if it doesn't exist
+    const logsDir = path.join(process.cwd(), 'logs');
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+    
+    // Write users to JSONL file
+    const filePath = path.join(logsDir, 'supabase_users.jsonl');
+    const jsonlContent = users.map(user => JSON.stringify(user)).join('\n');
+    
+    fs.writeFileSync(filePath, jsonlContent);
+    
+    return { filePath, count: users.length };
+  }
+});
+
+// Save Supabase notes to a JSONL file
+export const saveSupabaseNotesToFile = action({
+  args: {
+    notes: v.array(v.any())
+  },
+  handler: async (ctx, args) => {
+    const { notes } = args;
+    
+    // Create logs directory if it doesn't exist
+    const logsDir = path.join(process.cwd(), 'logs');
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+    
+    // Process notes to escape newlines in content
+    const processedNotes = notes.map(note => {
+      const processed = { ...note };
+      if (processed.content) {
+        processed.content = processed.content.replace(/\n/g, '\\n');
+      }
+      return processed;
+    });
+    
+    // Write notes to JSONL file
+    const filePath = path.join(logsDir, 'supabase_notes.jsonl');
+    const jsonlContent = processedNotes.map(note => JSON.stringify(note)).join('\n');
+    
+    fs.writeFileSync(filePath, jsonlContent);
+    
+    return { filePath, count: notes.length };
   }
 });
