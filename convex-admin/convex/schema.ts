@@ -122,6 +122,8 @@ export default defineSchema({
     userId: v.id("users"),
     type: v.string(),
     status: v.string(),
+    isVerified: v.optional(v.boolean()),
+    timestampMs: v.optional(v.int64()),
     context: v.optional(v.object({
       activityId: v.optional(v.id("activities")),
       protocolId: v.optional(v.id("protocols")),
@@ -140,6 +142,7 @@ export default defineSchema({
     userId: v.optional(v.id("users")),
     createdAtMs: v.optional(v.int64()),
     lastSavedMs: v.optional(v.int64()),
+    activityTimestamp: v.optional(v.int64()),
     content: v.string(),
     source: v.optional(v.string()),
     externalId: v.optional(v.string()),

@@ -99,7 +99,8 @@ export const createActivityEvent = mutation({
     activityId: v.id('activities'),
     parsedActivity: v.any(),
     activityRecord: v.any(),
-    noteRecord: v.optional(v.any())
+    noteRecord: v.optional(v.any()),
+    timestamp: v.optional(v.int64()),
   },
   handler: async (ctx, args) => {
     const { db } = ctx;
@@ -119,7 +120,8 @@ export const createActivityEvent = mutation({
           activity: activityRecord,
           // parsedActivity,
           note: noteRecord
-        }
+        },
+        timestamp: args.timestamp,
       });
 
       return {
@@ -170,6 +172,11 @@ export const processNoteActivities = action({
         eventsCreated: 0,
         activities: [] as any[]
       };
+
+      
+      // get default timestamp of event from note
+      // const userTimezone = "America/Los_Angeles";
+      // const defaultTimestamp = await ctx.runAction(api.utils.dateStrToMsUTC, { dateStr: note.createdAtMs.toString(), timezone: userTimezone });
 
       // Process each parsed activity
       for (const parsedActivity of parsedActivities) {

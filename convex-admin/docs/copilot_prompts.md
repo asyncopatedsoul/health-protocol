@@ -123,3 +123,17 @@ the third major function accepts the parsed activity object and the matched or n
 if the note parsing function does not return any activities, proceed to parsing the next note.
 
 finally, create tests in convex/tests/activityImport.test.ts to test all new or updated functions.
+
+#
+let's make updates to the activity import process in convex/activityImport.ts.
+when parsing note content, add a function for extracting a date string from the note content and use it to set the activityTimestamp from the note record if available.
+when creating events, set the timestampMs from the note.activityTimestamp if available, otherwise set it to note.createdAtMs.
+when creating events from notes, check if any events already exist for the note and skip creating duplicates if flag for skipDuplicates is true. 
+create a function to bulk import all notes for a user by user id supabase id, tokenId, and/or email within a date range of notes'  createdAtMs or lastSavedMs.
+if bulk importing by createdAtMs, set skipDuplicates to true since we want to create net new events.
+if bulk importing by lastSavedMs, set skipDuplicates to false since we want to update existing events. when skipDuplicates is false, remove all events with the same noteId and create new events with the latest note content. 
+update the activity import process to use the new functions.
+update scripts/runActivityImport.ts to accept options for skipDuplicates, bulkImport, dateStart, dateEnd, userId, supabaseUserId, tokenId, email.
+create or udpate functions related to read/write of users, notes, activities, events in convex/users.ts, convex/notes.ts, convex/activities.ts, convex/events.ts respectively to separate the database functions from the activity import process.
+update tests in convex/tests/activityImport.test.ts to test all new or updated functions.
+update documentation in docs/activity_import.md with instructions to run the activity import process with the updated options.
