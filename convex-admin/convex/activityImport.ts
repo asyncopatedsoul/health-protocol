@@ -2,6 +2,8 @@ import { v } from 'convex/values';
 import { action, mutation, query } from './_generated/server';
 import { api } from './_generated/api';
 import { Id } from './_generated/dataModel';
+import { ConvexError } from 'convex/values';
+import { extractDateFromContent } from './utils/dateExtractor';
 
 // Interface for parsed activity
 export interface ParsedActivity {
@@ -100,7 +102,7 @@ export const createActivityEvent = mutation({
     parsedActivity: v.any(),
     activityRecord: v.any(),
     noteRecord: v.optional(v.any()),
-    timestamp: v.optional(v.int64()),
+    timestampMs: v.optional(v.int64()),
   },
   handler: async (ctx, args) => {
     const { db } = ctx;
@@ -121,7 +123,7 @@ export const createActivityEvent = mutation({
           // parsedActivity,
           note: noteRecord
         },
-        timestamp: args.timestamp,
+        timestampMs: args.timestampMs,
       });
 
       return {
@@ -141,10 +143,11 @@ export const createActivityEvent = mutation({
  */
 export const processNoteActivities = action({
   args: {
-    noteId: v.string()
+    noteId: v.id('notes'),
+    skipDuplicates: v.optional(v.boolean(), true)
   },
   handler: async (ctx, args) => {
-    const { noteId } = args;
+    const { noteId, skipDuplicates } = args;
 
     try {
       // Get the note
@@ -153,9 +156,23 @@ export const processNoteActivities = action({
       if (!note) {
         return { success: false, error: `Note with ID ${noteId} not found` };
       }
+      
+      // Extract date from note content if present
+      const { date: extractedDate, remainingContent } = extractDateFromContent(note.content);
+      
+      // Update the note with the extracted date and cleaned content if needed
+      if (extractedDate) {
+        await ctx.runMutation(api.notes.update, {
+          id: note._id,
+          updates: {
+            content: remainingContent,
+            activityTimestamp: extractedDate.getTime(),
+          },
+        });
+      }
 
-      // Parse the note content
-      const parsedActivities = parseActivitiesFromNote(note.content);
+      // Parse the note content to extract activities
+      const parsedActivities = parseActivitiesFromNote(extractedDate ? remainingContent : note.content);
 
       if (!parsedActivities || parsedActivities.length === 0) {
         return { 
@@ -166,52 +183,221 @@ export const processNoteActivities = action({
         };
       }
 
-      const results = {
-        success: true,
-        activitiesFound: parsedActivities.length,
-        eventsCreated: 0,
-        activities: [] as any[]
-      };
+      // Define result interface for type safety
+      interface ActivityResult {
+        success: boolean;
+        error?: string;
+        eventId?: Id<'events'>;
+        skipped?: boolean;
+        reason?: string;
+        activity?: string;
+        timestamp?: number;
+        created?: boolean;
+      }
 
+      const results: ActivityResult[] = [];
       
-      // get default timestamp of event from note
-      // const userTimezone = "America/Los_Angeles";
-      // const defaultTimestamp = await ctx.runAction(api.utils.dateStrToMsUTC, { dateStr: note.createdAtMs.toString(), timezone: userTimezone });
+      // Get timestamp from note's activityTimestamp or createdAtMs
+      const timestamp = note.activityTimestamp || note.createdAtMs || BigInt(Date.now());
 
       // Process each parsed activity
-      for (const parsedActivity of parsedActivities) {
-        // Match or create the activity
-        const activityResult = await ctx.runAction(api.activityImport.matchOrCreateActivity, {
-          parsedActivity
-        });
+      for (const activity of parsedActivities) {
+        try {
+          // Check if we should skip duplicates
+          if (skipDuplicates) {
+            // Get all activity events for this user
+            const existingEvents = await ctx.runQuery(api.events.getByUser, {
+              userId: note.userId as Id<'users'>,
+              type: 'activity'
+            });
+            
+            if (Array.isArray(existingEvents)) {
+              // Check if an event already exists for this activity name and note
+              const activityName = activity.nameRaw.toLowerCase().trim();
+              const duplicateExists = existingEvents.some(event => {
+                // Check if this event is for the current note
+                const isSameNote = event.context?.noteId === note._id;
+                // Check if the activity name matches
+                const eventActivityName = event.metadata?.activity?.name?.toLowerCase()?.trim();
+                return isSameNote && eventActivityName === activityName;
+              });
+              
+              if (duplicateExists) {
+                results.push({
+                  success: true,
+                  skipped: true,
+                  reason: 'duplicate',
+                  activity: activity.nameRaw,
+                });
+                continue;
+              }
+            }
+          } else {
+            // If not skipping duplicates, delete existing events for this note
+            await ctx.runMutation(api.events.deleteByNoteId, { noteId: note._id });
+          }
 
-        if (activityResult.success && activityResult.activity) {
-          // Create an event for this activity
-          const eventResult = await ctx.runMutation(api.activityImport.createActivityEvent, {
-            userId: note.userId as Id<'users'>,
-            noteId,
-            activityId: activityResult.activity._id,
-            parsedActivity,
-            activityRecord: activityResult.activity,
-            noteRecord: note
+          // Match or create the activity
+          const matchResult = await ctx.runAction(api.activityImport.matchOrCreateActivity, {
+            parsedActivity: activity
           });
 
-          if (eventResult.success) {
-            results.eventsCreated++;
-            results.activities.push({
-              parsedActivity,
-              activity: activityResult.activity,
-              event: eventResult.eventId,
-              created: activityResult.created
-            });
+          if (!matchResult.success) {
+            throw new Error(matchResult.error);
           }
+
+          // Create an event for this activity
+          const eventResult = await ctx.runMutation(api.events.create, {
+            userId: note.userId as Id<'users'>,
+            type: 'activity',
+            status: 'completed',
+            timestampMs: timestamp,  // Using the timestamp from note.activityTimestamp or note.createdAtMs
+            context: {
+              activityId: matchResult.activity._id,
+              noteId: note._id,
+            },
+            metadata: {
+              activity: {
+                ...matchResult.activity,
+                name: activity.nameRaw,
+              },
+              note: {
+                id: note._id,
+                content: note.content,
+              },
+            },
+          });
+
+          results.push({
+            success: true,
+            activity: activity.nameRaw,
+            eventId: eventResult,
+            created: true,
+            timestamp: Number(timestamp)
+          });
+        } catch (error) {
+          results.push({
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+            activity: activity.nameRaw,
+          });
         }
       }
 
-      return results;
+      return {
+        success: true,
+        noteId: note._id,
+        activitiesFound: parsedActivities.length,
+        eventsCreated: results.filter(r => r.success && !r.skipped).length,
+        skipped: results.filter(r => r.skipped).length,
+        errors: results.filter(r => !r.success).length,
+        results,
+      };
     } catch (error) {
       console.error('Error processing note activities:', error);
-      return { success: false, error: String(error) };
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : String(error),
+        noteId
+      };
+    }
+  }
+});
+
+/**
+ * Bulk import notes for a user
+ */
+export const bulkImportNotes = action({
+  args: {
+    userId: v.optional(v.id('users')),
+    supabaseUserId: v.optional(v.string()),
+    tokenId: v.optional(v.string()),
+    email: v.optional(v.string()),
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+    importBy: v.optional(v.union(v.literal('createdAtMs'), v.literal('lastSavedMs'))),
+    skipDuplicates: v.optional(v.boolean())
+  },
+  handler: async (ctx, args) => {
+    const { startDate, endDate, importBy = 'createdAtMs' } = args;
+    
+    // Set skipDuplicates based on importBy if not explicitly provided
+    const skipDuplicates = args.skipDuplicates !== undefined 
+      ? args.skipDuplicates 
+      : (importBy === 'createdAtMs'); // Skip duplicates for createdAtMs, don't skip for lastSavedMs
+    
+    try {
+      // Find the user
+      let user;
+      
+      if (args.userId) {
+        user = await ctx.runQuery(api.users.get, { id: args.userId });
+      } else if (args.supabaseUserId) {
+        user = await ctx.runQuery(api.users.getBySupabaseUserId, { supabaseUserId: args.supabaseUserId });
+      } else if (args.tokenId) {
+        user = await ctx.runQuery(api.users.getByTokenId, { tokenId: args.tokenId });
+      } else if (args.email) {
+        user = await ctx.runQuery(api.users.getByEmail, { email: args.email });
+      } else {
+        return { success: false, error: 'No user identifier provided' };
+      }
+      
+      if (!user) {
+        return { success: false, error: 'User not found' };
+      }
+      
+      // Get notes for the user
+      const notes = await ctx.runQuery(api.notes.getByUser, {
+        userId: user._id,
+        startDate,
+        endDate
+      });
+      
+      if (!notes || notes.length === 0) {
+        return { success: true, message: 'No notes found for the user', notesProcessed: 0 };
+      }
+      
+      // Process each note
+      interface NoteProcessResult {
+        noteId: Id<'notes'>;
+        success: boolean;
+        activitiesFound: number;
+        eventsCreated: number;
+        skipped: number;
+        errors: number;
+      }
+      
+      const results: NoteProcessResult[] = [];
+      
+      for (const note of notes) {
+        const result = await ctx.runAction(api.activityImport.processNoteActivities, {
+          noteId: note._id,
+          skipDuplicates
+        });
+        
+        results.push({
+          noteId: note._id,
+          success: result.success,
+          activitiesFound: result.activitiesFound || 0,
+          eventsCreated: result.eventsCreated || 0,
+          skipped: result.skipped || 0,
+          errors: result.errors || 0
+        });
+      }
+      
+      return {
+        success: true,
+        userId: user._id,
+        notesProcessed: notes.length,
+        activitiesFound: results.reduce((sum, r) => sum + r.activitiesFound, 0),
+        eventsCreated: results.reduce((sum, r) => sum + r.eventsCreated, 0),
+        skipped: results.reduce((sum, r) => sum + r.skipped, 0),
+        errors: results.reduce((sum, r) => sum + r.errors, 0),
+        results
+      };
+    } catch (error) {
+      console.error('Error bulk importing notes:', error);
+      return { success: false, error: error instanceof Error ? error.message : String(error) };
     }
   }
 });
