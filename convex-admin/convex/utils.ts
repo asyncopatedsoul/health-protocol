@@ -48,3 +48,100 @@ export const dateStrToMsUTC = action({
         return dateAndTimeToUtcTimestampMs(dateStr, timezone);
     }
 });
+
+/**
+ * Extracts a date string from note content.
+ * Looks for common date formats at the beginning of the note.
+ * 
+ * @param {string} content - The note content to extract date from
+ * @returns {string | null} The extracted date string in YYYY-MM-DD format, or null if not found
+ */
+function extractDateFromNoteContent(content) {
+    if (!content) return null;
+    
+    // Common date formats to look for
+    const datePatterns = [
+        // YYYY-MM-DD format
+        /^\s*(\d{4}-\d{2}-\d{2})\s*$/m,
+        // MM/DD/YYYY format
+        /^\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*$/m,
+        // DD/MM/YYYY format
+        /^\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*$/m,
+        // Month DD, YYYY format
+        /^\s*([A-Za-z]+\s+\d{1,2},?\s+\d{4})\s*$/m,
+        // DD Month YYYY format
+        /^\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})\s*$/m
+    ];
+    
+    // Try each pattern until we find a match
+    for (const pattern of datePatterns) {
+        const match = content.match(pattern);
+        if (match && match[1]) {
+            // Try to parse the matched date string
+            try {
+                const parsedDate = parseToYYYYMMDD(match[1]);
+                if (parsedDate) return parsedDate;
+            } catch (error) {
+                console.error(`Error parsing date: ${match[1]}`, error);
+            }
+        }
+    }
+    
+    return null;
+}
+
+/**
+ * Parses a date string in various formats to YYYY-MM-DD format
+ * 
+ * @param {string} dateStr - The date string to parse
+ * @returns {string | null} The date in YYYY-MM-DD format, or null if parsing fails
+ */
+function parseToYYYYMMDD(dateStr) {
+    // Try to parse with Luxon
+    let dt;
+    
+    // Try different formats
+    const formats = [
+        'yyyy-MM-dd',           // YYYY-MM-DD
+        'M/d/yyyy',             // MM/DD/YYYY
+        'd/M/yyyy',             // DD/MM/YYYY
+        'MMMM d, yyyy',         // Month DD, YYYY
+        'MMMM d yyyy',          // Month DD YYYY
+        'd MMMM yyyy'           // DD Month YYYY
+    ];
+    
+    for (const format of formats) {
+        dt = DateTime.fromFormat(dateStr, format);
+        if (dt.isValid) {
+            return dt.toFormat('yyyy-MM-dd');
+        }
+    }
+    
+    // If all parsing attempts fail, try ISO parsing as a last resort
+    dt = DateTime.fromISO(dateStr);
+    if (dt.isValid) {
+        return dt.toFormat('yyyy-MM-dd');
+    }
+    
+    return null;
+}
+
+/**
+ * Action to extract a date from note content and convert it to a timestamp
+ */
+export const extractDateFromNote = action({
+    args: {
+        content: v.string(),
+        timezone: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const { content, timezone } = args;
+        
+        // Extract date string from content
+        const dateStr = extractDateFromNoteContent(content);
+        if (!dateStr) return null;
+        
+        // Convert to timestamp
+        return dateAndTimeToUtcTimestampMs(dateStr, timezone);
+    }
+});

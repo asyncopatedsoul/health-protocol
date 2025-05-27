@@ -1,7 +1,19 @@
-// convex/users.ts
-import { mutation } from './_generated/server'; // Or from './auth' if you're using the custom auth context
+import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
-import { Doc } from './_generated/dataModel'; // Import Doc type for type safety
+import { Doc, Id } from './_generated/dataModel';
+import { ConvexError } from 'convex/values';
+import { api } from './_generated/api';
+
+// Types
+type User = Doc<'users'>;
+
+interface UpdateUserInput {
+    email?: string;
+    fullName?: string;
+    tokenId?: string;
+    timezone?: string;
+    supabaseUserId?: string;
+}
 
 /**
  * Creates a new user record in the 'users' table.
@@ -70,33 +82,128 @@ export const create = mutation({
     },
 });
 
-// You might also want a mutation to update user details
-export const updateUserProfile = mutation({
+/**
+ * Get a user by ID
+ */
+export const get = query({
     args: {
-        userId: v.id("users"), // The Convex ID of the user to update
+        id: v.id('users'),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db.get(args.id);
+    },
+});
+
+/**
+ * Find a user by email
+ */
+export const getByEmail = query({
+    args: {
+        email: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const users = await ctx.db
+            .query('users')
+            .collect();
+        return users.find(user => user.email === args.email);
+    },
+});
+
+/**
+ * Find a user by Supabase user ID
+ */
+export const getBySupabaseUserId = query({
+    args: {
+        supabaseUserId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const users = await ctx.db
+            .query('users')
+            .collect();
+        return users.find(user => user.supabaseUserId === args.supabaseUserId);
+    },
+});
+
+/**
+ * Find a user by token ID
+ */
+export const getByTokenId = query({
+    args: {
+        tokenId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const users = await ctx.db
+            .query('users')
+            .collect();
+        return users.find(user => user.tokenId === args.tokenId);
+    },
+});
+
+/**
+ * Update user profile
+ */
+export const update = mutation({
+    args: {
+        id: v.id('users'),
         updates: v.object({
             email: v.optional(v.string()),
-            name: v.optional(v.string()),
-            // Add other updatable fields here
+            fullName: v.optional(v.string()),
+            tokenId: v.optional(v.string()),
+            timezone: v.optional(v.string()),
+            supabaseUserId: v.optional(v.string()),
         }),
     },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-
-        if (!identity) {
-            throw new Error("Not authenticated");
+        const user = await ctx.db.get(args.id);
+        if (!user) {
+            throw new ConvexError(`User with ID ${args.id} not found`);
         }
 
-        // IMPORTANT SECURITY CHECK: Ensure the authenticated user is updating THEIR OWN profile
-        const supabaseUserId = identity.tokenIdentifier.split('|')[1];
-        const userToUpdate = await ctx.db.get(args.userId);
-
-        if (!userToUpdate || userToUpdate.supabaseUserId !== supabaseUserId) {
-            throw new Error("Unauthorized: You can only update your own profile.");
+        // Check for email uniqueness if email is being updated
+        if (args.updates.email && args.updates.email !== user.email) {
+            const existingUser = await ctx.runQuery(api.users.getByEmail, { email: args.updates.email });
+            if (existingUser && existingUser._id !== args.id) {
+                throw new ConvexError('Email already in use');
+            }
         }
 
-        await ctx.db.patch(args.userId, args.updates);
+        // Check for tokenId uniqueness if tokenId is being updated
+        if (args.updates.tokenId && args.updates.tokenId !== user.tokenId) {
+            const existingUser = await ctx.runQuery(api.users.getByTokenId, { tokenId: args.updates.tokenId });
+            if (existingUser && existingUser._id !== args.id) {
+                throw new ConvexError('Token ID already in use');
+            }
+        }
 
-        console.log(`Updated user profile for Convex ID: ${args.userId}`);
+        // Check for supabaseUserId uniqueness if supabaseUserId is being updated
+        if (args.updates.supabaseUserId && args.updates.supabaseUserId !== user.supabaseUserId) {
+            const existingUser = await ctx.runQuery(api.users.getBySupabaseUserId, { 
+                supabaseUserId: args.updates.supabaseUserId 
+            });
+            if (existingUser && existingUser._id !== args.id) {
+                throw new ConvexError('Supabase user ID already in use');
+            }
+        }
+
+        await ctx.db.patch(args.id, args.updates);
+        return await ctx.db.get(args.id);
+    },
+});
+
+/**
+ * Delete a user
+ */
+export const remove = mutation({
+    args: {
+        id: v.id('users'),
+    },
+    handler: async (ctx, args) => {
+        const user = await ctx.db.get(args.id);
+        if (!user) {
+            throw new ConvexError(`User with ID ${args.id} not found`);
+        }
+
+        await ctx.db.delete(args.id);
+        return { success: true };
     },
 });
