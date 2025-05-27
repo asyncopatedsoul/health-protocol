@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
+    "import:note": "tsx scripts/runActivityImport.ts",
     "snapshot:activity": "tsx scripts/runActivitySnapshot.ts",
     "fuzzy:status": "tsx scripts/runFuzzySearchService.ts status",
     "fuzzy:start": "tsx scripts/runFuzzySearchService.ts start",

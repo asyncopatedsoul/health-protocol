@@ -13,14 +13,17 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as activityImport from "../activityImport.js";
 import type * as fuzzySearchExternal from "../fuzzySearchExternal.js";
 import type * as fuzzySearchInternal from "../fuzzySearchInternal.js";
+import type * as notes from "../notes.js";
 import type * as protocolManagement from "../protocolManagement.js";
 import type * as remoteSourceSupabase from "../remoteSourceSupabase.js";
 import type * as remoteUserActivity from "../remoteUserActivity.js";
 import type * as sum from "../sum.js";
 import type * as testFunctions from "../testFunctions.js";
 import type * as userHistory from "../userHistory.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -31,14 +34,17 @@ import type * as userHistory from "../userHistory.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  activityImport: typeof activityImport;
   fuzzySearchExternal: typeof fuzzySearchExternal;
   fuzzySearchInternal: typeof fuzzySearchInternal;
+  notes: typeof notes;
   protocolManagement: typeof protocolManagement;
   remoteSourceSupabase: typeof remoteSourceSupabase;
   remoteUserActivity: typeof remoteUserActivity;
   sum: typeof sum;
   testFunctions: typeof testFunctions;
   userHistory: typeof userHistory;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

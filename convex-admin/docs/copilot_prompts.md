@@ -71,7 +71,7 @@ create a function to add activities to the fuzzy search index, a function to rem
 finally create tests for the fuzzy search service in convex/tests/fuzzySearch.test.ts
 
 #
-let's create utility functions to parse the content of a note to extract the unique activities performed in the note. 
+let's create utility functions in convex/activityImport.ts to parse the content of a note to extract the unique activities performed in the note. use existing functions in convex/fuzzySearchInternal.ts and fuzzySearchExternal.ts whenever appropriate.
 
 the first major function should accept a note content as an argument and return an array of objects as unique activities performed + activitiy metadata in the note.
 here is an example of a note with content describing 4 unique activities: 
@@ -114,10 +114,12 @@ it is OK to return empty 'metadataParsed' if the raw metadata cannot be interpre
 the second major function should accept a parsed activity object and determine if the activity 'nameRaw' matches an existing activity in convex database. use the fuzzySearchExternal action to fuzzy match with a minimum rankingScore of 0.7. for matching the activity 'nameRaw' to an existing activity in convex database, use the parsed activity 'nameRaw' field to fuzzy match on an existing activity 'name'. if the activity 'nameRaw' fuzzy matches an existing activity in convex database, return the activity record. if the activity 'nameRaw' does not fuzzy match an existing activity in convex database, create a new activity record in convex database and return the new activity record. 
 
 the third major function accepts the parsed activity object and the matched or new activity record as arguments and creates an event record in convex database for the activity. the event record should have the following fields:
-- userId
+- userId: note.userId
 - type: "activity"
 - status: "imported"
-- context: { activityId: <activityId> }
+- context: { activityId: <activityId>, noteId: <noteId> }
 - metadata: { activity: <activityRecord>, note: <noteRecord> }
 
-finally, update tests in convex/tests/fuzzySearch.test.ts to test all new or updated functions.
+if the note parsing function does not return any activities, proceed to parsing the next note.
+
+finally, create tests in convex/tests/activityImport.test.ts to test all new or updated functions.

@@ -19,7 +19,7 @@ export default defineSchema({
     tokenId: v.string(),
     timezone: v.optional(v.string()), // e.g., 'America/Los_Angeles', 'Europe/London'
     supabaseUserId: v.optional(v.string()),
-  }).index("by_email", ["email"]).index("by_supabaseUserId", ["supabaseUserId"]),
+  }).index("by_email", ["email"]).index("by_supabaseUserId", ["supabaseUserId"]).index("by_tokenId", ["tokenId"]),
   preferences: defineTable({
     userId: v.union(v.id("users"), v.null()),
   }),
